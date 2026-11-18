@@ -120,6 +120,12 @@
     .footer { display:flex; justify-content:space-between; gap:12px; margin:14px 3px 0; color:#9a9083; font-size:9px; }
     .toast { position:fixed; left:50%; bottom:22px; z-index:30; transform:translate(-50%,20px); opacity:0; pointer-events:none; border-radius:999px; padding:11px 16px; background:#302b25; color:#fff; box-shadow:0 9px 30px #302b2540; font-size:12px; font-weight:800; transition:opacity .22s,transform .22s; text-align:center; max-width:calc(100vw - 28px); }
     .toast.show { opacity:1; transform:translate(-50%,0); }
+    .quick-guide { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:-5px 0 14px; padding:11px 14px; border:1px solid #f1dbbb; border-radius:16px; background:linear-gradient(110deg,#fff6e5,#fffdf8 72%); }
+    .quick-guide-copy { min-width:0; }
+    .quick-guide-title { margin:0; color:#915624; font-size:12px; font-weight:950; line-height:1.35; }
+    .quick-guide-text { margin:3px 0 0; color:#75695b; font-size:10px; line-height:1.45; }
+    .quick-guide-action { flex:none; min-height:44px; max-width:130px; border:1px solid #f0c58e; border-radius:11px; padding:8px 12px; background:#fff; color:#a65b24; font-size:10px; font-weight:900; cursor:pointer; touch-action:manipulation; }
+    .quick-guide-action:hover { background:#fff9ef; }
     @media (max-width:850px) {
       .page { padding:16px 14px 24px; }
       .layout { grid-template-columns:1fr; }
@@ -142,8 +148,12 @@
       .stat-label { font-size:9px; gap:3px; }
       .stat-value { font-size:17px; }
       .stat small { font-size:9px; }
-      .shop-card { min-height:470px; }
-      .scene { margin:12px 11px 0; min-height:238px; }
+      .quick-guide { align-items:flex-start; gap:8px; padding:10px; }
+      .quick-guide-title { font-size:11px; }
+      .quick-guide-text { font-size:9px; }
+      .quick-guide-action { max-width:102px; padding:7px 9px; font-size:9px; }
+      .shop-card { min-height:390px; }
+      .scene { margin:12px 11px 0; min-height:174px; }
       .shop-head { padding:17px 15px 0; }
       .shop-head h2,.side-header h2,.daily-head h2 { font-size:16px; }
       .shop-head p,.side-header p,.daily-head p { font-size:10px; }
@@ -192,6 +202,14 @@
       <div class="stat"><div class="stat-label" id="incomeLabel">⚡ รายได้อัตโนมัติ</div><div class="stat-value"><span id="income">0</span><small id="incomeUnit"> / วินาที</small></div></div>
       <div class="stat"><div class="stat-label" id="salesLabel">🧾 ขายไปแล้ว</div><div class="stat-value"><span id="sales">0</span> <small id="salesUnit"> ครั้ง</small></div></div>
     </section>
+
+    <aside class="quick-guide" role="note" aria-labelledby="quickGuideTitle">
+      <div class="quick-guide-copy">
+        <h2 class="quick-guide-title" id="quickGuideTitle">เริ่มตรงนี้ · แตะขายเพื่อรับเงิน</h2>
+        <p class="quick-guide-text" id="quickGuideText">แตะปุ่มสีส้มเพื่อขายครั้งแรก แล้วซื้ออัปเกรดให้ร้านทำเงินเอง</p>
+      </div>
+      <button class="quick-guide-action" id="guideAction" type="button" data-target="sellButton">ไปที่ปุ่มขาย</button>
+    </aside>
 
     <section class="layout" aria-label="หน้าร้านและการพัฒนา">
       <article class="card shop-card">
@@ -249,7 +267,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   </div>
 
-  <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js" defer></script>
+  <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js" async id="crazySDKScript"></script>
   <script>
     (() => {
       'use strict';
@@ -272,6 +290,7 @@
           stageStall:'Street stall', stageShop:'Neighborhood shop', stageMart:'Mini-mart', stageCafe:'Popular café', stageMall:'Community mall', stageEmpire:'Shop empire',
           captionStall:'Make your first sale and bring the shop to life!', captionShop:'Customers are stopping by all day!', captionMart:'Your shop is growing and the shelves are filling up!', captionCafe:'The neighborhood’s favorite café!', captionMall:'A bigger business, built together!', captionEmpire:'From a little shop to your dream business!',
           milestone:'🎉 Shop milestone reached! Bonus: {amount}', comboActive:'Combo {count} · Bonus ×{multiplier}', comboIdle:'Tap quickly to build a combo: every 5 taps adds a bonus (up to ×2)!',
+          guideStartTitle:'Start here · tap to earn', guideStartText:'Tap the orange sell button to make your first sale. Every 5 quick taps adds a combo bonus.', guideSaveShelfTitle:'Next · save up for a shelf', guideSaveShelfText:'Earn {amount} more, then buy a Product shelf to earn more per tap.', guideBuyShelfTitle:'Next · buy a shelf', guideBuyShelfText:'You have enough cash for a shelf. Open Upgrades below and tap Buy ×1.', guideSaveHelperTitle:'Next · hire an assistant', guideSaveHelperText:'Save up {amount} more for the Shop assistant. It earns ฿1 every second automatically.', guideBuyHelperTitle:'Almost automatic · hire help', guideBuyHelperText:'You can afford the Shop assistant. Buy it below to earn ฿1 every second.', guideRunningTitle:'Your shop earns automatically!', guideRunningText:'Staff bring in cash every second. Buy more upgrades or scroll down to try a daily quest.', guideGoSell:'Go to sell button', guideViewUpgrades:'View upgrades', guideViewQuests:'View quests',
           questSales:'Sell 20 items', questEarn:'Earn ฿300 today', questBuys:'Buy 2 upgrades', questClaimed:'Claimed', questClaim:'Claim reward', questContinue:'Keep going', questClaimAria:'Quest reward already claimed', questReadyAria:'Claim quest reward {amount}', questIncompleteAria:'Complete the quest first',
           upgradeToast:'{name} upgraded ×{count}!', questToast:'Quest reward claimed: {amount}!', returnToast:'Welcome back! Your shop earned {amount} while you were away',
           soundOff:'Mute sound', soundOn:'Enable sound', soundToggleTitle:'Toggle sound', goalProgress:'Shop goal progress', scene:'Shop illustration'
@@ -294,6 +313,7 @@
           stageStall:'ร้านแผงลอย', stageShop:'ร้านคูหา', stageMart:'มินิมาร์ต', stageCafe:'คาเฟ่ยอดนิยม', stageMall:'ห้างชุมชน', stageEmpire:'อาณาจักรร้านค้า',
           captionStall:'แตะขายครั้งแรก แล้วร้านจะคึกคักขึ้น!', captionShop:'ลูกค้าเริ่มแวะมาไม่ขาดสาย!', captionMart:'ร้านโตขึ้น ชั้นวางก็แน่นขึ้น!', captionCafe:'ร้านดังประจำย่าน ใคร ๆ ก็รู้จัก!', captionMall:'กิจการใหญ่ขึ้น ขอบคุณที่ช่วยกัน!', captionEmpire:'จากร้านเล็ก ๆ สู่ธุรกิจในฝัน!',
           milestone:'🎉 ถึงเป้าหมายร้านแล้ว! รับโบนัส {amount}', comboActive:'คอมโบ {count} ครั้ง · โบนัส ×{multiplier}', comboIdle:'แตะต่อเนื่องทุก 5 ครั้ง รับโบนัสสูงสุด ×2!',
+          guideStartTitle:'เริ่มตรงนี้ · แตะขายเพื่อรับเงิน', guideStartText:'แตะปุ่มสีส้มเพื่อขายครั้งแรก แตะต่อเนื่องทุก 5 ครั้งรับโบนัสคอมโบ', guideSaveShelfTitle:'ขั้นต่อไป · เก็บเงินซื้อชั้นวาง', guideSaveShelfText:'เก็บเงินอีก {amount} แล้วซื้อชั้นวาง เพื่อรับเงินเพิ่มต่อการแตะ', guideBuyShelfTitle:'ขั้นต่อไป · ซื้อชั้นวางสินค้า', guideBuyShelfText:'ตอนนี้มีเงินพอซื้อชั้นวางแล้ว เลื่อนลงไปที่อัปเกรดแล้วแตะซื้อ ×1', guideSaveHelperTitle:'ขั้นต่อไป · จ้างผู้ช่วย', guideSaveHelperText:'เก็บเงินอีก {amount} เพื่อจ้างผู้ช่วยหน้าร้าน รับรายได้อัตโนมัติ ฿1 ทุกวินาที', guideBuyHelperTitle:'อีกนิดเดียว · จ้างผู้ช่วยให้ร้าน', guideBuyHelperText:'มีเงินพอแล้ว เลื่อนลงไปซื้อผู้ช่วยหน้าร้าน เพื่อรับ ฿1 ทุกวินาที', guideRunningTitle:'ร้านเริ่มทำเงินอัตโนมัติแล้ว!', guideRunningText:'ทีมงานจะช่วยเพิ่มเงินทุกวินาที ลองซื้ออัปเกรดเพิ่มหรือเลื่อนลงไปทำภารกิจประจำวัน', guideGoSell:'ไปที่ปุ่มขาย', guideViewUpgrades:'ดูอัปเกรด', guideViewQuests:'ดูภารกิจ',
           questSales:'ขายสินค้าให้ลูกค้า 20 ครั้ง', questEarn:'ทำรายได้รวมวันนี้ ฿300', questBuys:'ซื้ออัปเกรดให้ร้าน 2 ครั้ง', questClaimed:'รับแล้ว', questClaim:'รับโบนัส', questContinue:'ทำต่อ', questClaimAria:'รับรางวัลภารกิจแล้ว', questReadyAria:'รับรางวัลภารกิจ {amount}', questIncompleteAria:'ทำภารกิจให้ครบก่อน',
           upgradeToast:'อัปเกรด {name} ×{count} แล้ว!', questToast:'รับโบนัสภารกิจ {amount} แล้ว!', returnToast:'ยินดีต้อนรับกลับ! ร้านทำเงินให้ {amount} ตอนที่คุณไม่อยู่',
           soundOff:'ปิดเสียง', soundOn:'เปิดเสียง', soundToggleTitle:'เปิดหรือปิดเสียง', goalProgress:'ความคืบหน้าสู่เป้าหมายร้าน', scene:'ภาพร้านค้า'
@@ -358,13 +378,28 @@
       window.addEventListener('DOMContentLoaded', async () => {
         let sdk = null;
         try {
-          sdk = await Promise.race([
-            initCrazyGames(),
-            new Promise(resolve => setTimeout(() => resolve(null), 5000))
-          ]);
+          if (location.hostname !== 'hatxaiyasone865-star.github.io') {
+            sdk = await Promise.race([
+              (async () => {
+                if (!window.CrazyGames?.SDK) {
+                  await new Promise(resolve => {
+                    const script=document.getElementById('crazySDKScript');
+                    script.addEventListener('load',resolve,{once:true});
+                    script.addEventListener('error',resolve,{once:true});
+                    setTimeout(resolve,1500);
+                  });
+                }
+                return initCrazyGames();
+              })(),
+              new Promise(resolve => setTimeout(() => resolve(null), 3000))
+            ]);
+          }
         } catch (_) { sdk = null; }
         window.__shopCrazySDK = sdk;
-        window.setShopGameLanguage('th');
+        const requestedLanguage = new URLSearchParams(location.search).get('lang');
+        const locale = sdk?.user?.systemInfo?.locale || 'th';
+        window.setShopGameLanguage(requestedLanguage === 'en' || requestedLanguage === 'th'
+          ? requestedLanguage : String(locale).toLowerCase().startsWith('th') ? 'th' : 'en');
         window.startGame();
       }, { once:true });
     })();
@@ -669,7 +704,39 @@
         document.getElementById('comboBar').style.width=active?(remaining/COMBO_WINDOW_MS*100)+'%':'0%';
         if (!active && combo) combo=0;
       }
-      function renderAll() { renderStats(); renderUpgrades(); renderProgress(); renderStage(); renderQuests(); renderCombo(); }
+      function renderQuickGuide() {
+        let titleKey, textKey, actionKey, targetId='sellButton', amount=0;
+        const hasTapUpgrade=products.some(product=>product.kind==='click'&&state.levels[product.id]>0);
+        if (incomePerSecond()>0) {
+          titleKey='guideRunningTitle'; textKey='guideRunningText'; actionKey='guideViewQuests'; targetId='questGrid';
+        } else if (!state.sales) {
+          titleKey='guideStartTitle'; textKey='guideStartText'; actionKey='guideGoSell';
+        } else if (!hasTapUpgrade) {
+          const shelf=products.find(product=>product.id==='shelf');
+          const cost=nextCost(shelf);
+          if (state.cash>=cost) {
+            titleKey='guideBuyShelfTitle'; textKey='guideBuyShelfText'; actionKey='guideViewUpgrades'; targetId='shelf';
+          } else {
+            titleKey='guideSaveShelfTitle'; textKey='guideSaveShelfText'; actionKey='guideGoSell'; amount=compact(cost-state.cash);
+          }
+        } else if (incomePerSecond()<=0) {
+          const helper=products.find(product=>product.id==='helper');
+          const cost=nextCost(helper);
+          if (state.cash>=cost) {
+            titleKey='guideBuyHelperTitle'; textKey='guideBuyHelperText'; actionKey='guideViewUpgrades'; targetId='helper';
+          } else {
+            titleKey='guideSaveHelperTitle'; textKey='guideSaveHelperText'; actionKey='guideGoSell'; amount=compact(cost-state.cash);
+          }
+        } else {
+          titleKey='guideRunningTitle'; textKey='guideRunningText'; actionKey='guideViewQuests'; targetId='questGrid';
+        }
+        document.getElementById('quickGuideTitle').textContent=t(titleKey);
+        document.getElementById('quickGuideText').textContent=t(textKey,{amount});
+        const action=document.getElementById('guideAction');
+        action.textContent=t(actionKey);
+        action.dataset.target=targetId;
+      }
+      function renderAll() { renderStats(); renderUpgrades(); renderProgress(); renderStage(); renderQuests(); renderCombo(); renderQuickGuide(); }
       function showToast(message) {
         const el=document.getElementById('toast'); el.textContent=message; el.classList.add('show');
         clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2300);
@@ -721,7 +788,7 @@
         const x=event&&Number.isFinite(event.clientX)?event.clientX:rect.left+rect.width/2;
         const y=event&&Number.isFinite(event.clientY)?event.clientY:rect.top+rect.height*.68;
         floatMoney('+'+money(amount)+(multiplier>1?' ×'+multiplier.toFixed(1):''),x,y);
-        playClick(); renderStats(); renderUpgrades(); renderProgress(); renderStage(); renderQuests(); renderCombo(comboNow); save();
+        playClick(); renderStats(); renderUpgrades(); renderProgress(); renderStage(); renderQuests(); renderCombo(comboNow); renderQuickGuide(); save();
       }
       function buy(id) {
         const p=products.find(item=>item.id===id); if (!p) return;
@@ -730,13 +797,13 @@
         state.cash=Math.max(0,state.cash-cost); state.levels[id]=Math.min(MAX_LEVEL,state.levels[id]+count);
         state.daily.buys=Math.min(Number.MAX_SAFE_INTEGER,state.daily.buys+count);
         showToast(t('upgradeToast',{name:productName(p),count}));
-        renderStats(); renderUpgrades(); renderProgress(); renderQuests(); save();
+        renderStats(); renderUpgrades(); renderProgress(); renderQuests(); renderQuickGuide(); save();
       }
       function claimQuest(id) {
         const q=quests.find(item=>item.id===id); if (!q||state.daily.claimed.includes(id)||state.daily[q.id==='earn'?'earned':q.id]<q.goal) return;
         state.daily.claimed.push(id); state.cash=safeAdd(state.cash,q.reward);
         showToast(t('questToast',{amount:money(q.reward)}));
-        renderStats(); renderUpgrades(); renderQuests(); save();
+        renderStats(); renderUpgrades(); renderQuests(); renderQuickGuide(); save();
       }
       function updateGame(elapsedSeconds) {
         const seconds=Math.min(OFFLINE_CAP_SECONDS,Math.max(0,elapsedSeconds));
@@ -763,7 +830,7 @@
         if (elapsed>0 && (incomePerSecond()>0 || dailyResetNeeded)) {
           if (dailyResetNeeded) dailyKeyCheck();
           updateGame(elapsed);
-          renderStats(); updateUpgradeAvailability(); renderProgress(); renderStage(); renderQuests();
+          renderStats(); updateUpgradeAvailability(); renderProgress(); renderStage(); renderQuests(); renderQuickGuide();
         }
         renderCombo(performance.now());
       }
@@ -780,6 +847,17 @@
       document.getElementById('soundButton').addEventListener('click',event=>{
         state.sound=!state.sound; event.currentTarget.textContent=state.sound?'🔈':'🔇';
         event.currentTarget.setAttribute('aria-label',state.sound?t('soundOff'):t('soundOn')); save();
+      });
+      document.getElementById('guideAction').addEventListener('click',event=>{
+        const targetId=event.currentTarget.dataset.target||'sellButton';
+        const product=products.find(item=>item.id===targetId);
+        if (product) {
+          quantity=1;
+          document.querySelectorAll('[data-quantity]').forEach(item=>item.setAttribute('aria-pressed',String(item.dataset.quantity==='1')));
+          updateUpgradeAvailability();
+        }
+        const target=product ? document.querySelector('.upgrade[data-id="'+targetId+'"]') : document.getElementById(targetId);
+        target?.scrollIntoView({behavior:'smooth',block:'center'});
       });
       document.addEventListener('keydown',event=>{
         if ((event.code==='Space'||event.code==='Enter')&&!event.repeat&&!/^(BUTTON|INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'')&&!document.activeElement?.isContentEditable) {
