@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff6e8">
+  <meta name="description" content="Build a cheerful neighborhood shop in this relaxing idle clicker. Tap to sell, hire helpers, complete daily quests, and grow your business.">
+  <title>Happy Shop Idle — Tap, Sell, Grow</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #28241f; --muted: #81786c; --paper: #fffdf8; --cream: #fff6e8;
+      --line: #efe6d8; --orange: #ef7d37; --orange-deep: #d95d22;
+      --yellow: #ffd46c; --mint: #daf2df; --green: #3b8a5b;
+      --shadow: 0 18px 50px rgba(74, 47, 22, .09);
+    }
+    * { box-sizing: border-box; }
+    html { min-width: 320px; background: var(--cream); scroll-behavior: smooth; }
+    body { margin: 0; min-height: 100vh; min-height: 100dvh; overflow-x:hidden; color: var(--ink); font-family: ui-rounded, "Noto Sans Thai", "Leelawadee UI", system-ui, -apple-system, sans-serif; background: radial-gradient(ellipse at 8% 0%, rgba(255,221,155,.35), transparent 35rem), linear-gradient(180deg,#fff9ee 0%,#fffaf4 42%,#f8f0e5 100%); -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; touch-action:manipulation; }
+    button { font: inherit; }
+    button:focus-visible { outline: 3px solid #4c9d71; outline-offset: 3px; }
+    .page { max-width: 1160px; margin: 0 auto; padding: max(22px,env(safe-area-inset-top)) max(22px,env(safe-area-inset-right)) max(32px,env(safe-area-inset-bottom)) max(22px,env(safe-area-inset-left)); }
+    .save-warning { display:none; margin:8px 0 0; color:#a84836; font-size:12px; font-weight:800; line-height:1.45; }
+    .save-warning.visible { display:block; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:19px; }
+    .brand { display:flex; align-items:center; gap:12px; min-width:0; }
+    .brand-mark { width:50px; height:50px; display:grid; place-items:center; border-radius:16px; background:#fff; box-shadow:0 7px 18px #e9c89c66; font-size:28px; flex:none; }
+    .brand h1 { margin:0; font-size:clamp(21px,3vw,27px); letter-spacing:-.5px; line-height:1.2; }
+    .brand p { margin:4px 0 0; color:var(--muted); font-size:12px; }
+    .top-actions { display:flex; align-items:center; gap:9px; }
+    .save-pill,.sound-button { border:1px solid var(--line); background:#fffdf9; color:var(--muted); border-radius:999px; }
+    .save-pill { display:flex; align-items:center; gap:7px; padding:9px 12px; font-size:11px; white-space:nowrap; }
+    .save-pill[data-state="error"] { color:#a84836; }
+    .save-pill[data-state="error"] .save-dot { background:#cf5d49; box-shadow:0 0 0 3px #cf5d4920; }
+    .save-dot { width:7px; height:7px; background:#62ad73; border-radius:50%; box-shadow:0 0 0 3px #62ad7320; }
+    .sound-button { cursor:pointer; color:var(--ink); font-size:16px; width:44px; height:44px; padding:0; touch-action:manipulation; }
+    .stats { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:11px; margin-bottom:16px; }
+    .stat { background:rgba(255,255,255,.84); border:1px solid #f2e6d6; border-radius:17px; padding:13px 16px; box-shadow:0 7px 20px rgba(93,66,34,.035); min-width:0; }
+    .stat-label { color:var(--muted); font-size:11px; display:flex; align-items:center; gap:6px; }
+    .stat-value { font-size:clamp(18px,2.7vw,24px); font-weight:900; letter-spacing:-.4px; margin-top:3px; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+    .stat:first-child .stat-value { color:#c56828; }
+    .stat small { font-size:11px; font-weight:650; color:var(--muted); }
+    .layout { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(340px,.85fr); gap:16px; align-items:stretch; }
+    .card { background:rgba(255,255,255,.93); border:1px solid #f0e6d9; border-radius:23px; box-shadow:var(--shadow); overflow:hidden; }
+    .shop-card { display:flex; flex-direction:column; min-height:550px; }
+    .shop-head { padding:20px 22px 0; display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+    .shop-head h2,.side-header h2,.daily-head h2 { margin:0; font-size:18px; }
+    .shop-head p,.side-header p,.daily-head p { margin:5px 0 0; color:var(--muted); font-size:12px; }
+    .open-badge { white-space:nowrap; border-radius:100px; padding:7px 10px; background:#e7f5e8; color:#3b8251; font-size:10px; font-weight:800; }
+    .scene { margin:14px 19px 0; flex:1; min-height:282px; border-radius:20px; overflow:hidden; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(180deg,#e9f6f4 0%,#fff0d0 76%,#e9c48c 76%,#e9c48c 100%); isolation:isolate; }
+    .scene::before { content:""; position:absolute; width:100%; height:24%; left:0; bottom:0; background:linear-gradient(90deg,#dbb278 0 12%,#e9c48c 12% 20%,#dbb278 20% 21%,#e9c48c 21%); opacity:.34; z-index:-1; }
+    .sun { position:absolute; right:13%; top:25px; width:48px; height:48px; border-radius:50%; background:#ffdc83; opacity:.92; box-shadow:0 0 0 13px #ffdc8326; }
+    .cloud { position:absolute; left:12%; top:40px; color:#fff; font-size:36px; opacity:.9; }
+    .shop-building { position:relative; z-index:1; margin-top:25px; width:min(76%,390px); min-width:250px; filter:drop-shadow(0 10px 8px #8c572329); transition:filter .2s; }
+    .awning { display:flex; height:40px; overflow:hidden; border:3px solid #fff7ea; border-bottom:0; border-radius:14px 14px 0 0; background:#fff; }
+    .awning span { flex:1; background:#f78c4d; }
+    .awning span:nth-child(even) { background:#fff3dd; }
+    .shop-sign { position:absolute; top:-30px; left:50%; transform:translateX(-50%); border:3px solid white; border-radius:12px; padding:3px 15px 5px; background:#fff2ce; color:#684320; box-shadow:0 4px 0 #dcae70; white-space:nowrap; font-size:13px; font-weight:900; }
+    .storefront { position:relative; height:124px; border:4px solid #fff7ea; background:#fffbf2; display:flex; align-items:flex-end; justify-content:center; gap:16px; padding:8px 18px 0; }
+    .window { width:61px; height:79px; border:5px solid #9accc1; border-bottom-width:7px; background:linear-gradient(135deg,#d9f3ed,#a7dace); border-radius:7px 7px 0 0; position:relative; }
+    .window::before,.window::after { content:""; position:absolute; background:#9accc1; }
+    .window::before { width:4px; height:100%; left:50%; transform:translateX(-50%); }
+    .window::after { height:4px; width:100%; top:52%; }
+    .door { width:57px; height:100px; background:#e5ae69; border:5px solid #fff4df; border-bottom:0; border-radius:9px 9px 0 0; position:relative; }
+    .door::after { content:""; position:absolute; width:7px; height:7px; right:7px; top:53px; background:#fff1bf; border-radius:50%; }
+    .plant { position:absolute; bottom:7px; font-size:32px; z-index:2; }
+    .plant.left { left:8%; } .plant.right { right:8%; }
+    .scene-caption { position:absolute; bottom:12px; color:#735a3c; font-size:11px; font-weight:750; z-index:3; text-shadow:0 1px #fff8e9; }
+    .stage-pill { position:absolute; top:12px; left:12px; z-index:4; border:1px solid #ffffffb0; border-radius:99px; background:#ffffffb8; color:#6d5c45; font-size:10px; font-weight:800; padding:6px 9px; backdrop-filter:blur(6px); }
+    .sell-area { padding:15px 21px 19px; text-align:center; }
+    .tap-info { font-size:12px; color:var(--muted); margin-bottom:9px; }
+    .tap-info strong { color:#bf6327; }
+    .combo-row { min-height:25px; display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 2px 8px; color:#987a45; font-size:10px; font-weight:800; }
+    .combo-meter { height:5px; flex:1; max-width:170px; border-radius:9px; overflow:hidden; background:#f4ead9; }
+    .combo-meter span { display:block; height:100%; width:0; background:linear-gradient(90deg,#ffcd69,#f0823e); transition:width .16s; }
+    .sell-button { position:relative; border:0; width:100%; min-height:61px; border-radius:17px; color:white; background:linear-gradient(180deg,#fa984f,#e87635); box-shadow:0 6px 0 #be5728,0 13px 23px #e8763530; font-size:18px; font-weight:900; letter-spacing:.1px; cursor:pointer; transition:transform .08s,box-shadow .08s,filter .15s; touch-action:manipulation; user-select:none; -webkit-tap-highlight-color:transparent; }
+    .sell-button:hover { filter:brightness(1.035); transform:translateY(-1px); }
+    .sell-button:active { transform:translateY(4px); box-shadow:0 2px 0 #be5728,0 6px 12px #e8763526; }
+    .sell-icon { margin-right:6px; }
+    .float-layer { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:15; }
+    .float-text { position:absolute; color:#a94e19; font-weight:950; font-size:18px; text-shadow:0 2px white,0 0 8px #fff; animation:float-up .85s ease-out forwards; }
+    @keyframes float-up { 0%{opacity:0;transform:translate(-50%,4px) scale(.82)} 15%{opacity:1} 100%{opacity:0;transform:translate(-50%,-62px) scale(1.08)} }
+    .side-card { min-height:550px; display:flex; flex-direction:column; }
+    .side-header { padding:19px 20px 13px; border-bottom:1px solid #f3ece3; }
+    .side-header-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .target-chip { border-radius:12px; padding:7px 9px; background:#fff5df; color:#a26622; font-size:10px; font-weight:850; white-space:nowrap; }
+    .progress { margin-top:12px; height:7px; border-radius:9px; background:#f5ecdf; overflow:hidden; }
+    .progress>span { display:block; height:100%; width:0; background:linear-gradient(90deg,#ffbd57,#ed7738); border-radius:inherit; transition:width .3s; }
+    .progress-label { margin-top:5px; font-size:9px; color:#92887b; display:flex; justify-content:space-between; gap:8px; }
+    .upgrade-tools { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 15px 4px; }
+    .section-label { display:flex; gap:6px; align-items:center; color:#958b7e; text-transform:uppercase; letter-spacing:.35px; font-size:9px; font-weight:900; }
+    .quantity { display:flex; gap:4px; padding:3px; border-radius:10px; background:#f8f2e9; }
+    .quantity button { min-width:44px; min-height:44px; border:0; border-radius:7px; padding:6px 8px; background:transparent; color:#827566; font-size:10px; font-weight:900; cursor:pointer; touch-action:manipulation; }
+    .quantity button[aria-pressed="true"] { background:#fff; color:#b75c25; box-shadow:0 1px 5px #76552a1a; }
+    .upgrade-list { padding:6px 13px 13px; display:grid; gap:7px; }
+    .upgrade { display:grid; grid-template-columns:39px minmax(0,1fr) auto; align-items:center; gap:9px; border:1px solid #f0e9df; border-radius:15px; padding:9px; background:#fffefa; transition:border-color .16s,transform .16s,background .16s; }
+    .upgrade:hover { border-color:#f4c28b; transform:translateY(-1px); }
+    .upgrade.locked { opacity:.68; }
+    .upgrade-icon { width:39px; height:39px; border-radius:12px; background:#fff1da; display:grid; place-items:center; font-size:20px; }
+    .upgrade[data-type="staff"] .upgrade-icon { background:#e8f5eb; }
+    .upgrade-name { font-size:12px; font-weight:900; line-height:1.25; }
+    .upgrade-desc { margin-top:3px; color:var(--muted); font-size:9px; line-height:1.35; }
+    .upgrade-owned { margin-top:3px; font-size:9px; color:#9c9387; }
+    .buy-button { min-width:75px; min-height:44px; border:0; padding:7px 8px; border-radius:10px; background:#f6a04f; color:white; font-size:10px; font-weight:900; cursor:pointer; box-shadow:0 3px 0 #d27a33; touch-action:manipulation; }
+    .buy-button:disabled { background:#e8e2d9; color:#a7a095; box-shadow:none; cursor:not-allowed; }
+    .buy-button span { display:block; font-size:8px; margin-top:2px; opacity:.95; }
+    .daily-card { margin-top:16px; padding:17px 19px 18px; }
+    .daily-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; }
+    .daily-stamp { color:#a87833; background:#fff5df; border-radius:99px; padding:6px 9px; font-size:9px; font-weight:850; white-space:nowrap; }
+    .quest-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+    .quest { min-width:0; padding:12px; border:1px solid #f0e8dc; border-radius:15px; background:#fffefa; }
+    .quest-top { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+    .quest-title { font-size:11px; line-height:1.4; font-weight:850; }
+    .quest-reward { color:#b86d2d; font-size:10px; font-weight:900; white-space:nowrap; }
+    .quest-progress { margin-top:10px; height:6px; background:#f3ecdf; border-radius:99px; overflow:hidden; }
+    .quest-progress span { display:block; height:100%; background:linear-gradient(90deg,#91c98d,#55a96f); border-radius:inherit; transition:width .25s; }
+    .quest-foot { display:flex; justify-content:space-between; align-items:center; gap:7px; margin-top:7px; color:#948a7c; font-size:9px; }
+    .claim-button { min-height:44px; border:0; border-radius:8px; padding:7px 10px; background:#62a878; color:white; font-size:9px; font-weight:900; cursor:pointer; touch-action:manipulation; }
+    .claim-button:disabled { background:#e8e4dc; color:#989184; cursor:default; }
+    .footer { display:flex; justify-content:space-between; gap:12px; margin:14px 3px 0; color:#9a9083; font-size:9px; }
+    .toast { position:fixed; left:50%; bottom:22px; z-index:30; transform:translate(-50%,20px); opacity:0; pointer-events:none; border-radius:999px; padding:11px 16px; background:#302b25; color:#fff; box-shadow:0 9px 30px #302b2540; font-size:12px; font-weight:800; transition:opacity .22s,transform .22s; text-align:center; max-width:calc(100vw - 28px); }
+    .toast.show { opacity:1; transform:translate(-50%,0); }
+    @media (max-width:850px) {
+      .page { padding:16px 14px 24px; }
+      .layout { grid-template-columns:1fr; }
+      .shop-card { min-height:500px; }
+      .side-card { min-height:0; }
+      .upgrade-list { grid-template-columns:1fr 1fr; }
+      .upgrade-tools { padding-top:12px; }
+    }
+    @media (max-width:560px) {
+      .topbar { align-items:flex-start; }
+      .brand-mark { width:43px; height:43px; border-radius:14px; font-size:24px; }
+      .brand { gap:9px; }
+      .brand p { max-width:190px; font-size:10px; }
+      .save-pill { min-height:36px; padding:7px 9px; justify-content:center; font-size:10px; white-space:normal; }
+      .save-dot { width:8px; height:8px; }
+      .top-actions { gap:6px; }
+      .sound-button { width:44px; height:44px; }
+      .stats { gap:6px; }
+      .stat { padding:10px 8px; border-radius:13px; }
+      .stat-label { font-size:9px; gap:3px; }
+      .stat-value { font-size:17px; }
+      .stat small { font-size:9px; }
+      .shop-card { min-height:470px; }
+      .scene { margin:12px 11px 0; min-height:238px; }
+      .shop-head { padding:17px 15px 0; }
+      .shop-head h2,.side-header h2,.daily-head h2 { font-size:16px; }
+      .shop-head p,.side-header p,.daily-head p { font-size:10px; }
+      .open-badge { font-size:9px; padding:6px 8px; }
+      .sell-area { padding:14px 13px 17px; }
+      .sell-button { min-height:58px; font-size:16px; }
+      .upgrade-list { grid-template-columns:1fr; padding:6px 10px 12px; }
+      .upgrade-tools { padding-left:12px; padding-right:12px; }
+      .daily-card { padding:15px 12px; }
+      .daily-head { align-items:flex-start; }
+      .quest-grid { grid-template-columns:1fr; gap:7px; }
+      .quest { padding:10px 11px; }
+      .quest-progress { margin-top:7px; }
+      .footer { flex-direction:column; text-align:center; }
+      .scene-caption { bottom:10px; font-size:10px; }
+    }
+    @media (max-height:500px) and (orientation:landscape) {
+      .page { padding-top:10px; padding-bottom:12px; }
+      .topbar { margin-bottom:10px; }
+      .stats { margin-bottom:10px; }
+      .layout { grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr); }
+      .shop-card,.side-card { min-height:0; }
+      .scene { min-height:155px; }
+      .daily-card { margin-top:10px; }
+    }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; } }
+  </style>
+</head>
+<body>
+  <div id="gameArea">
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">🏪</div>
+        <div><h1 id="gameTitle">Happy Shop Idle</h1><p id="brandTagline">Tap to sell, keep combos, hire staff, and grow your shop!</p></div>
+      </div>
+      <div class="top-actions">
+        <div class="save-pill" id="saveStatus" data-state="saved" title="Game saves automatically on this device" role="status" aria-live="polite"><span class="save-dot"></span><span id="saveText">Saved</span></div>
+        <button class="sound-button" id="soundButton" type="button" aria-label="Mute sound" title="Toggle sound">🔈</button>
+      </div>
+    </header>
+
+    <p class="save-warning" id="saveWarning" role="alert" aria-live="assertive">Game progress may be lost after closing or refreshing this page.</p>
+    <section class="stats" aria-label="Shop status">
+      <div class="stat"><div class="stat-label" id="cashLabel">💰 Cash in till</div><div class="stat-value" id="cash">฿0</div></div>
+      <div class="stat"><div class="stat-label" id="incomeLabel">⚡ Auto income</div><div class="stat-value"><span id="income">0</span><small id="incomeUnit"> / sec</small></div></div>
+      <div class="stat"><div class="stat-label" id="salesLabel">🧾 Sales</div><div class="stat-value"><span id="sales">0</span> <small id="salesUnit"> items</small></div></div>
+    </section>
+
+    <section class="layout" aria-label="Shop and upgrades">
+      <article class="card shop-card">
+        <div class="shop-head">
+          <div><h2 id="shopTitle">Your shop</h2><p id="shopTip">Tap to sell, then invest to automate the shop</p></div>
+          <div class="open-badge" id="openBadge">● Open</div>
+        </div>
+        <div class="scene" id="scene" aria-label="A cute neighborhood shop">
+          <div class="sun" aria-hidden="true"></div><div class="cloud" aria-hidden="true">☁</div>
+          <div class="stage-pill" id="stagePill">🌱 Street stall</div>
+          <div class="shop-building" aria-hidden="true">
+            <div class="shop-sign" id="shopSign">Street stall ✦</div>
+            <div class="awning"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <div class="storefront"><div class="window"></div><div class="door"></div><div class="window"></div></div>
+          </div>
+          <div class="plant left" aria-hidden="true">🪴</div><div class="plant right" aria-hidden="true">🌼</div>
+          <div class="scene-caption" id="sceneCaption">Make your first sale and bring the shop to life!</div>
+        </div>
+        <div class="sell-area">
+          <div class="tap-info"><span id="tapInstruction">Tap once to earn</span> <strong id="tapValue">฿1</strong> <span id="perSale">per sale</span></div>
+          <div class="combo-row" aria-live="polite"><span id="comboLabel">Keep tapping to build a combo!</span><div class="combo-meter" aria-hidden="true"><span id="comboBar"></span></div></div>
+          <button class="sell-button" id="sellButton" type="button"><span class="sell-icon" aria-hidden="true">🛍️</span><span id="sellButtonText">Tap to sell</span></button>
+        </div>
+      </article>
+
+      <aside class="card side-card">
+        <div class="side-header">
+          <div class="side-header-row">
+            <div><h2 id="businessTitle">Grow your business</h2><p id="businessTip">Invest today to grow faster</p></div>
+            <div class="target-chip" id="targetChip">Target ฿100</div>
+          </div>
+          <div class="progress" role="progressbar" aria-label="Progress toward shop goals" aria-valuemin="0" aria-valuemax="100"><span id="progressBar"></span></div>
+          <div class="progress-label"><span id="progressText">Total earned ฿0</span><span id="progressPct">0%</span></div>
+        </div>
+        <div class="upgrade-tools">
+          <div class="section-label" id="upgradeSectionTitle">🛠️ Upgrades & staff</div>
+          <div class="quantity" role="group" aria-label="Number of upgrades to buy">
+            <button type="button" data-quantity="1" aria-pressed="true">×1</button>
+            <button type="button" data-quantity="10" aria-pressed="false">×10</button>
+            <button type="button" data-quantity="max" aria-pressed="false" id="quantityMax">Max</button>
+          </div>
+        </div>
+        <div class="upgrade-list" id="upgradeList" aria-label="Upgrades"></div>
+      </aside>
+    </section>
+
+    <section class="card daily-card" aria-labelledby="dailyTitle">
+      <div class="daily-head"><div><h2 id="dailyTitle">🎯 Daily quests</h2><p id="dailyTip">Complete quests to earn bonus baht</p></div><div class="daily-stamp" id="dailyStamp">Resets daily</div></div>
+      <div class="quest-grid" id="questGrid"></div>
+    </section>
+
+    <footer class="footer"><span id="footerSave">Free to play · Progress saved on this device</span><span id="footerCurrency">In-game currency has no real-world value · No real-money purchases</span></footer>
+  </main>
+  <div class="float-layer" id="floatLayer" aria-hidden="true"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js" defer></script>
+  <script>
+    (() => {
+      'use strict';
+      const COPY = {
+        en: {
+          title:'Happy Shop Idle', tagline:'Tap to sell, keep combos, hire staff, and grow your shop!',
+          saved:'Saved', saveError:'Save unavailable', savedTitle:'Game saves automatically on this device', saveErrorTitle:'Storage unavailable — progress may be lost after closing or refreshing this page', saveWarning:'Game progress may be lost after closing or refreshing this page.',
+          cashLabel:'💰 Cash in till', incomeLabel:'⚡ Auto income', salesLabel:'🧾 Sales', salesUnit:' items', incomeUnit:' / sec',
+          shopTitle:'Your shop', shopTip:'Tap to sell, then invest to automate the shop', openBadge:'● Open', sceneAlt:'A cute neighborhood shop',
+          tapInstruction:'Tap once to earn', perSale:'per sale', comboHint:'Keep tapping to build a combo!', sellButtonText:'Tap to sell',
+          businessTitle:'Grow your business', businessTip:'Invest today to grow faster', targetChip:'Target {amount}', progressAria:'Progress toward shop goals',
+          progressEarned:'Total earned {amount} / {target}', progressComplete:'Your shop is legendary', targetComplete:'All goals complete!',
+          upgradeSectionTitle:'🛠️ Upgrades & staff', quantityAria:'Number of upgrades to buy', quantityMax:'Max', clickCategory:'👆 BOOST SALES', staffCategory:'👥 AUTOMATED STAFF',
+          dailyTitle:'🎯 Daily quests', dailyTip:'Complete quests to earn bonus baht', dailyReset:'Resets daily', dailyToday:'Today · {date}',
+          footerSave:'Free to play · Progress saved on this device', footerCurrency:'In-game currency has no real-world value · No real-money purchases', upgradeListAria:'Upgrades',
+          clickCategoryAria:'Tap upgrades', staffCategoryAria:'Staff upgrades',
+          buyButton:'Buy ×{count}<span>{cost}</span>', soldOut:'Maxed<span>Fully upgraded</span>', notEnough:'Not enough<span>Keep earning</span>',
+          buyAria:'Buy {name} ×{count} for {cost}', soldOutAria:'{name} is fully upgraded', cannotBuyAria:'Not enough to buy {name}',
+          owned:'Owned: {count}', goalBonus:'Bonus {amount}',
+          stageStall:'Street stall', stageShop:'Neighborhood shop', stageMart:'Mini-mart', stageCafe:'Popular café', stageMall:'Community mall', stageEmpire:'Shop empire',
+          captionStall:'Make your first sale and bring the shop to life!', captionShop:'Customers are stopping by all day!', captionMart:'Your shop is growing and the shelves are filling up!', captionCafe:'The neighborhood’s favorite café!', captionMall:'A bigger business, built together!', captionEmpire:'From a little shop to your dream business!',
+          milestone:'🎉 Shop milestone reached! Bonus: {amount}', comboActive:'Combo {count} · Bonus ×{multiplier}', comboIdle:'Tap quickly to build a combo: every 5 taps adds a bonus (up to ×2)!',
+          questSales:'Sell 20 items', questEarn:'Earn ฿300 today', questBuys:'Buy 2 upgrades', questClaimed:'Claimed', questClaim:'Claim reward', questContinue:'Keep going', questClaimAria:'Quest reward already claimed', questReadyAria:'Claim quest reward {amount}', questIncompleteAria:'Complete the quest first',
+          upgradeToast:'{name} upgraded ×{count}!', questToast:'Quest reward claimed: {amount}!', returnToast:'Welcome back! Your shop earned {amount} while you were away',
+          soundOff:'Mute sound', soundOn:'Enable sound', soundToggleTitle:'Toggle sound', goalProgress:'Shop goal progress', scene:'Shop illustration'
+        },
+        th: {
+          title:'ร้านค้าพาเพลิน', tagline:'แตะขาย ทำคอมโบ จ้างทีม แล้วขยายร้าน!',
+          saved:'บันทึกแล้ว', saveError:'บันทึกไม่ได้', savedTitle:'บันทึกเกมอัตโนมัติไว้ในอุปกรณ์นี้', saveErrorTitle:'พื้นที่จัดเก็บไม่พร้อม ความคืบหน้าอาจหายเมื่อปิดหรือรีเฟรชหน้า', saveWarning:'บันทึกไม่ได้ในเบราว์เซอร์นี้ — ความคืบหน้าอาจหายเมื่อปิดหรือรีเฟรชหน้า',
+          cashLabel:'💰 เงินในลิ้นชัก', incomeLabel:'⚡ รายได้อัตโนมัติ', salesLabel:'🧾 ขายไปแล้ว', salesUnit:' ครั้ง', incomeUnit:' / วินาที',
+          shopTitle:'หน้าร้านของคุณ', shopTip:'เริ่มแตะขาย แล้วลงทุนให้ร้านทำเงินเอง', openBadge:'● เปิดให้บริการ', sceneAlt:'ภาพร้านค้าสไตล์น่ารัก',
+          tapInstruction:'แตะหนึ่งครั้ง รับ', perSale:'ต่อการขาย', comboHint:'เริ่มคอมโบด้วยการแตะต่อเนื่อง!', sellButtonText:'แตะเพื่อขายสินค้า',
+          businessTitle:'พัฒนากิจการ', businessTip:'ลงทุนวันนี้ เพื่อให้ร้านโตไวขึ้น', targetChip:'เป้าหมาย {amount}', progressAria:'ความคืบหน้าสู่เป้าหมายร้าน',
+          progressEarned:'รายได้สะสม {amount} / {target}', progressComplete:'ร้านของคุณคือระดับตำนาน', targetComplete:'ทุกเป้าหมายสำเร็จแล้ว!',
+          upgradeSectionTitle:'🛠️ อัปเกรดร้าน & ทีมงาน', quantityAria:'จำนวนอัปเกรดที่จะซื้อ', quantityMax:'สูงสุด', clickCategory:'👆 เพิ่มพลังการขาย', staffCategory:'👥 ทีมงานอัตโนมัติ',
+          dailyTitle:'🎯 ภารกิจประจำวัน', dailyTip:'ทำภารกิจให้ครบเพื่อรับเงินโบนัสสะสม', dailyReset:'รีเซ็ตทุกวัน', dailyToday:'วันนี้ · {date}',
+          footerSave:'เกมเล่นฟรี · เซฟอยู่ในอุปกรณ์นี้', footerCurrency:'เงินในเกมไม่มีมูลค่าจริง · ไม่มีการซื้อด้วยเงินจริง', upgradeListAria:'รายการอัปเกรด',
+          clickCategoryAria:'อัปเกรดการแตะขาย', staffCategoryAria:'อัปเกรดทีมงาน',
+          buyButton:'ซื้อ ×{count}<span>{cost}</span>', soldOut:'เต็มแล้ว<span>ครบทุกระดับ</span>', notEnough:'ยังไม่พอ<span>เก็บเงินต่อ</span>',
+          buyAria:'ซื้อ {name} ×{count} ในราคา {cost}', soldOutAria:'{name} ถึงระดับสูงสุดแล้ว', cannotBuyAria:'ยังซื้อ {name} ไม่ได้',
+          owned:'มีแล้ว {count} ระดับ', goalBonus:'โบนัส {amount}',
+          stageStall:'ร้านแผงลอย', stageShop:'ร้านคูหา', stageMart:'มินิมาร์ต', stageCafe:'คาเฟ่ยอดนิยม', stageMall:'ห้างชุมชน', stageEmpire:'อาณาจักรร้านค้า',
+          captionStall:'แตะขายครั้งแรก แล้วร้านจะคึกคักขึ้น!', captionShop:'ลูกค้าเริ่มแวะมาไม่ขาดสาย!', captionMart:'ร้านโตขึ้น ชั้นวางก็แน่นขึ้น!', captionCafe:'ร้านดังประจำย่าน ใคร ๆ ก็รู้จัก!', captionMall:'กิจการใหญ่ขึ้น ขอบคุณที่ช่วยกัน!', captionEmpire:'จากร้านเล็ก ๆ สู่ธุรกิจในฝัน!',
+          milestone:'🎉 ถึงเป้าหมายร้านแล้ว! รับโบนัส {amount}', comboActive:'คอมโบ {count} ครั้ง · โบนัส ×{multiplier}', comboIdle:'แตะต่อเนื่องทุก 5 ครั้ง รับโบนัสสูงสุด ×2!',
+          questSales:'ขายสินค้าให้ลูกค้า 20 ครั้ง', questEarn:'ทำรายได้รวมวันนี้ ฿300', questBuys:'ซื้ออัปเกรดให้ร้าน 2 ครั้ง', questClaimed:'รับแล้ว', questClaim:'รับโบนัส', questContinue:'ทำต่อ', questClaimAria:'รับรางวัลภารกิจแล้ว', questReadyAria:'รับรางวัลภารกิจ {amount}', questIncompleteAria:'ทำภารกิจให้ครบก่อน',
+          upgradeToast:'อัปเกรด {name} ×{count} แล้ว!', questToast:'รับโบนัสภารกิจ {amount} แล้ว!', returnToast:'ยินดีต้อนรับกลับ! ร้านทำเงินให้ {amount} ตอนที่คุณไม่อยู่',
+          soundOff:'ปิดเสียง', soundOn:'เปิดเสียง', soundToggleTitle:'เปิดหรือปิดเสียง', goalProgress:'ความคืบหน้าสู่เป้าหมายร้าน', scene:'ภาพร้านค้า'
+        }
+      };
+      window.shopGameLang = 'en';
+      window.shopGameText = (key, values = {}) => {
+        const template = (COPY[window.shopGameLang] && COPY[window.shopGameLang][key]) || COPY.en[key] || key;
+        return template.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
+      };
+      window.setShopGameLanguage = (language) => {
+        window.shopGameLang = language === 'th' ? 'th' : 'en';
+        const t = window.shopGameText;
+        document.documentElement.lang = window.shopGameLang;
+        document.title = t('title') + (window.shopGameLang === 'th' ? ' — แตะขาย ขยายร้าน' : ' — Tap, Sell, Grow');
+        const desc = document.querySelector('meta[name="description"]');
+        if (desc) desc.content = window.shopGameLang === 'th'
+          ? 'ร้านค้าพาเพลิน เกมบริหารร้านภาษาไทย แตะขาย ทำคอมโบ จ้างทีม และทำภารกิจประจำวัน'
+          : 'Build a cheerful neighborhood shop in this relaxing idle clicker. Tap to sell, hire helpers, complete daily quests, and grow your business.';
+        const entries = {
+          gameTitle:'title', brandTagline:'tagline', cashLabel:'cashLabel', incomeLabel:'incomeLabel', salesLabel:'salesLabel', salesUnit:'salesUnit', incomeUnit:'incomeUnit',
+          shopTitle:'shopTitle', shopTip:'shopTip', openBadge:'openBadge', sceneCaption:'captionStall', tapInstruction:'tapInstruction', perSale:'perSale',
+          comboLabel:'comboHint', sellButtonText:'sellButtonText', businessTitle:'businessTitle', businessTip:'businessTip', upgradeSectionTitle:'upgradeSectionTitle',
+          dailyTitle:'dailyTitle', dailyTip:'dailyTip', dailyStamp:'dailyReset', footerSave:'footerSave', footerCurrency:'footerCurrency', quantityMax:'quantityMax', saveWarning:'saveWarning'
+        };
+        for (const [id, key] of Object.entries(entries)) {
+          const element = document.getElementById(id);
+          if (element) element.textContent = t(key);
+        }
+        const soundButton = document.getElementById('soundButton');
+        if (soundButton) { soundButton.setAttribute('aria-label', t('soundOff')); soundButton.title = t('soundToggleTitle'); }
+        const saveStatus = document.getElementById('saveStatus');
+        if (saveStatus) saveStatus.title = t('savedTitle');
+        const stats = document.querySelector('.stats');
+        if (stats) stats.setAttribute('aria-label', window.shopGameLang === 'th' ? 'สถานะร้าน' : 'Shop status');
+        const layout = document.querySelector('.layout');
+        if (layout) layout.setAttribute('aria-label', window.shopGameLang === 'th' ? 'หน้าร้านและการพัฒนา' : 'Shop and upgrades');
+        const scene = document.getElementById('scene');
+        if (scene) scene.setAttribute('aria-label', t('sceneAlt'));
+        const progress = document.querySelector('.progress');
+        if (progress) progress.setAttribute('aria-label', t('progressAria'));
+        const quantity = document.querySelector('.quantity');
+        if (quantity) quantity.setAttribute('aria-label', t('quantityAria'));
+        const upgradeList = document.getElementById('upgradeList');
+        if (upgradeList) upgradeList.setAttribute('aria-label', t('upgradeListAria'));
+      };
+      async function initCrazyGames() {
+        const sdk = window.CrazyGames && window.CrazyGames.SDK;
+        if (!sdk || typeof sdk.init !== 'function') return null;
+        try { await sdk.init(); } catch (_) { return null; }
+        const env = sdk.environment;
+        const environment = typeof env === 'string' ? env : (env && (env.type || env.environment));
+        return environment === 'crazygames' || environment === 'local' ? sdk : null;
+      }
+      window.__shopCrazySDK = null;
+      window.startGame = function() {
+        if (window.__shopGameStarted) return;
+        window.__shopGameStarted = true;
+        runShopGame();
+        try { window.__shopCrazySDK?.game?.gameplayStart(); } catch (_) { /* SDK is optional outside CrazyGames. */ }
+      };
+      window.addEventListener('DOMContentLoaded', async () => {
+        let sdk = null;
+        try {
+          sdk = await Promise.race([
+            initCrazyGames(),
+            new Promise(resolve => setTimeout(() => resolve(null), 5000))
+          ]);
+        } catch (_) { sdk = null; }
+        window.__shopCrazySDK = sdk;
+        const locale = sdk?.user?.systemInfo?.locale || '';
+        window.setShopGameLanguage(String(locale).toLowerCase().startsWith('th') ? 'th' : 'en');
+        window.startGame();
+      }, { once:true });
+    })();
+  </script>
+
+  <script>
+    function runShopGame() {
+      (() => {
+      'use strict';
+      const SAVE_KEY = 'shop-sanook-save-v1';
+      const OFFLINE_CAP_SECONDS = 4 * 60 * 60;
+      const t = window.shopGameText;
+      const language = window.shopGameLang;
+      function productName(product) { return language === 'th' ? product.name : product.nameEn; }
+      function productDescription(product) { return language === 'th' ? product.desc : product.descEn; }
+      function questTitle(quest) { return language === 'th' ? quest.title : quest.titleEn; }
+      function readSaveItem(key) {
+        const data = window.__shopCrazySDK?.data;
+        if (data) {
+          try {
+            const saved = data.getItem(key);
+            if (saved !== null) return saved;
+          } catch (_) { /* Data Module may be disabled for this launch; try browser storage. */ }
+        }
+        try {
+          const legacy = window.localStorage.getItem(key);
+          if (legacy !== null && data) {
+            try { data.setItem(key, legacy); } catch (_) { /* Preserve the local save if cloud saves are not enabled. */ }
+          }
+          return legacy;
+        } catch (_) { return null; }
+      }
+      function writeSaveItem(key, value) {
+        const data = window.__shopCrazySDK?.data;
+        if (data) {
+          try { data.setItem(key, value); return true; }
+          catch (_) { /* Data Module may be disabled; use browser storage instead. */ }
+        }
+        try { window.localStorage.setItem(key, value); return true; }
+        catch (_) { return false; }
+      }
+      const MAX_ECONOMY = 1e100;
+      const MAX_LEVEL = 1000000;
+      const COMBO_WINDOW_MS = 1800;
+      const MILESTONES = [
+        { target: 100, reward: 50 }, { target: 500, reward: 120 },
+        { target: 2500, reward: 300 }, { target: 10000, reward: 800 },
+        { target: 50000, reward: 2000 }, { target: 250000, reward: 5000 },
+        { target: 1000000, reward: 15000 }, { target: 5000000, reward: 50000 },
+        { target: 10000000, reward: 100000 }
+      ];
+      const STAGES = [
+        { at: 0, name: 'ร้านแผงลอย', nameEn:'Street stall', icon: '🌱', caption: 'แตะขายครั้งแรก แล้วร้านจะคึกคักขึ้น!', captionEn:'Make your first sale and bring the shop to life!' },
+        { at: 500, name: 'ร้านคูหา', nameEn:'Neighborhood shop', icon: '🪴', caption: 'ลูกค้าเริ่มแวะมาไม่ขาดสาย!', captionEn:'Customers are stopping by all day!' },
+        { at: 2500, name: 'มินิมาร์ต', nameEn:'Mini-mart', icon: '🏬', caption: 'ร้านโตขึ้น ชั้นวางก็แน่นขึ้น!', captionEn:'Your shop is growing and the shelves are filling up!' },
+        { at: 10000, name: 'คาเฟ่ยอดนิยม', nameEn:'Popular café', icon: '☕', caption: 'ร้านดังประจำย่าน ใคร ๆ ก็รู้จัก!', captionEn:'The neighborhood’s favorite café!' },
+        { at: 50000, name: 'ห้างชุมชน', nameEn:'Community mall', icon: '🏙️', caption: 'กิจการใหญ่ขึ้น ขอบคุณที่ช่วยกัน!', captionEn:'A bigger business, built together!' },
+        { at: 250000, name: 'อาณาจักรร้านค้า', nameEn:'Shop empire', icon: '👑', caption: 'จากร้านเล็ก ๆ สู่ธุรกิจในฝัน!', captionEn:'From a little shop to your dream business!' }
+      ];
+      const products = [
+        { id:'shelf', kind:'click', icon:'🧺', name:'ชั้นวางสินค้า', nameEn:'Product shelf', desc:'เพิ่มเงินต่อการแตะ +฿1', descEn:'Earn +฿1 per tap', baseCost:15, factor:1.48, value:1 },
+        { id:'register', kind:'click', icon:'🧾', name:'เครื่องคิดเงินไว', nameEn:'Fast cash register', desc:'เพิ่มเงินต่อการแตะ +฿4', descEn:'Earn +฿4 per tap', baseCost:85, factor:1.62, value:4 },
+        { id:'sign', kind:'click', icon:'✨', name:'ป้ายร้านสะดุดตา', nameEn:'Eye-catching shop sign', desc:'เพิ่มเงินต่อการแตะ +฿12', descEn:'Earn +฿12 per tap', baseCost:360, factor:1.72, value:12 },
+        { id:'helper', kind:'staff', icon:'🧑‍🍳', name:'ผู้ช่วยหน้าร้าน', nameEn:'Shop assistant', desc:'ช่วยขายอัตโนมัติ +฿1/วินาที', descEn:'Automatic sales +฿1/sec', baseCost:50, factor:1.50, value:1 },
+        { id:'barista', kind:'staff', icon:'☕', name:'บาริสต้ามือโปร', nameEn:'Pro barista', desc:'ชงไว ขายคล่อง +฿6/วินาที', descEn:'Fast service +฿6/sec', baseCost:250, factor:1.60, value:6 },
+        { id:'manager', kind:'staff', icon:'🧑‍💼', name:'ผู้จัดการร้าน', nameEn:'Shop manager', desc:'บริหารร้านเก่ง +฿30/วินาที', descEn:'Expert management +฿30/sec', baseCost:1200, factor:1.72, value:30 }
+      ];
+      const quests = [
+        { id:'sales', title:'ขายสินค้าให้ลูกค้า 20 ครั้ง', titleEn:'Sell 20 items', goal:20, reward:50 },
+        { id:'earn', title:'ทำรายได้รวมวันนี้ ฿300', titleEn:'Earn ฿300 today', goal:300, reward:70 },
+        { id:'buys', title:'ซื้ออัปเกรดให้ร้าน 2 ครั้ง', titleEn:'Buy 2 upgrades', goal:2, reward:100 }
+      ];
+      const defaults = {
+        cash:0, totalEarned:0, sales:0,
+        levels:{shelf:0,register:0,sign:0,helper:0,barista:0,manager:0},
+        lastTick:Date.now(), sound:true, milestones:[], daily:{key:'',sales:0,earned:0,buys:0,claimed:[]}
+      };
+      let quantity = 1;
+      let state = loadState();
+      let toastTimer, audioContext;
+      let combo = 0, lastTapAt = 0, lastActiveTick = Date.now();
+
+      function localDayKey(date = new Date()) {
+        return [date.getFullYear(), String(date.getMonth()+1).padStart(2,'0'), String(date.getDate()).padStart(2,'0')].join('-');
+      }
+      function safeNumber(value, fallback = 0, maximum = MAX_ECONOMY) {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? Math.min(maximum, Math.max(0, parsed)) : fallback;
+      }
+      function safeAdd(left, right) {
+        const sum = left + right;
+        return Number.isFinite(sum) ? Math.min(MAX_ECONOMY, Math.max(0, sum)) : MAX_ECONOMY;
+      }
+      function loadState() {
+        try {
+          const saved = JSON.parse(readSaveItem(SAVE_KEY) || 'null');
+          if (!saved || typeof saved !== 'object') return structuredDefaults();
+          const levels = { ...defaults.levels };
+          for (const p of products) levels[p.id] = Math.floor(safeNumber(saved.levels?.[p.id], 0, MAX_LEVEL));
+          const totalEarned = safeNumber(saved.totalEarned);
+          const oldDaily = saved.daily && typeof saved.daily === 'object' ? saved.daily : {};
+          const daily = {
+            key: /^\d{4}-\d{2}-\d{2}$/.test(String(oldDaily.key || '')) ? String(oldDaily.key) : '',
+            sales: Math.floor(safeNumber(oldDaily.sales, 0, Number.MAX_SAFE_INTEGER)),
+            earned: safeNumber(oldDaily.earned),
+            buys: Math.floor(safeNumber(oldDaily.buys, 0, Number.MAX_SAFE_INTEGER)),
+            claimed: Array.isArray(oldDaily.claimed) ? [...new Set(oldDaily.claimed.filter(id => quests.some(q => q.id === id)))] : []
+          };
+          const milestones = Array.isArray(saved.milestones)
+            ? saved.milestones.map(Number).filter(target => MILESTONES.some(m => m.target === target))
+            : MILESTONES.filter(m => totalEarned >= m.target).map(m => m.target);
+          const savedLastTick = Number(saved.lastTick);
+          return {
+            ...defaults, ...saved,
+            cash:safeNumber(saved.cash), totalEarned,
+            sales:Math.floor(safeNumber(saved.sales, 0, Number.MAX_SAFE_INTEGER)), levels,
+            lastTick:Number.isFinite(savedLastTick)&&savedLastTick>0 ? Math.min(Date.now(),savedLastTick) : Date.now(),
+            sound:saved.sound!==false,
+            milestones:[...new Set(milestones)], daily
+          };
+        } catch (_) { return structuredDefaults(); }
+      }
+      function structuredDefaults() {
+        return { ...defaults, levels:{...defaults.levels}, milestones:[], daily:{key:'',sales:0,earned:0,buys:0,claimed:[]} };
+      }
+      function save() {
+        state.lastTick = Date.now();
+        try {
+          const ok = writeSaveItem(SAVE_KEY, JSON.stringify(state));
+          updateSaveStatus(ok);
+          return ok;
+        } catch (_) {
+          updateSaveStatus(false);
+          return false;
+        }
+      }
+      function updateSaveStatus(saved) {
+        const warning = document.getElementById('saveWarning');
+        if (warning) warning.classList.toggle('visible', !saved);
+        const status = document.getElementById('saveStatus');
+        const label = document.getElementById('saveText');
+        if (!status || !label) return;
+        status.dataset.state = saved ? 'saved' : 'error';
+        label.textContent = saved ? t('saved') : t('saveError');
+        status.title = saved ? t('savedTitle') : t('saveErrorTitle');
+      }
+      function money(value) {
+        const rounded = Math.floor(safeNumber(value));
+        return '฿' + new Intl.NumberFormat(language === 'th' ? 'th-TH' : 'en-US').format(rounded);
+      }
+      const compactFormatter = new Intl.NumberFormat(language === 'th' ? 'th-TH' : 'en-US',{notation:'compact',maximumFractionDigits:1});
+      function compact(value) {
+        const amount = safeNumber(value);
+        return amount >= 1e4 ? '฿' + compactFormatter.format(amount) : money(amount);
+      }
+      function tapPower() { return 1 + products.filter(p=>p.kind==='click').reduce((sum,p)=>sum+state.levels[p.id]*p.value,0); }
+      function incomePerSecond() { return products.filter(p=>p.kind==='staff').reduce((sum,p)=>sum+state.levels[p.id]*p.value,0); }
+      function nextCost(product, level = state.levels[product.id]) { return Math.ceil(product.baseCost*Math.pow(product.factor,level)); }
+      function bundleCost(product, count) {
+        let sum = 0;
+        for (let i=0; i<count; i++) {
+          const part = nextCost(product, state.levels[product.id]+i);
+          if (!Number.isFinite(part) || !Number.isFinite(sum+part)) return Infinity;
+          sum += part;
+        }
+        return sum;
+      }
+      function maxAffordable(product) {
+        let count = 0, total = 0;
+        while (count < 10000) {
+          const cost = nextCost(product, state.levels[product.id]+count);
+          if (!Number.isFinite(cost) || total+cost > state.cash) break;
+          total += cost; count++;
+        }
+        return count;
+      }
+      function selectedCount(product) {
+        const room = Math.max(0, MAX_LEVEL - state.levels[product.id]);
+        return room ? Math.min(room, quantity === 'max' ? maxAffordable(product) : quantity) : 0;
+      }
+      function formatRate(value) { return new Intl.NumberFormat(language === 'th' ? 'th-TH' : 'en-US',{maximumFractionDigits:1}).format(value); }
+      function dailyKeyCheck() {
+        const today = localDayKey();
+        if (!state.daily || state.daily.key !== today) state.daily = { key:today, sales:0, earned:0, buys:0, claimed:[] };
+      }
+      function renderStats() {
+        document.getElementById('cash').textContent = compact(state.cash);
+        document.getElementById('income').textContent = formatRate(incomePerSecond());
+        document.getElementById('sales').textContent = new Intl.NumberFormat(language === 'th' ? 'th-TH' : 'en-US').format(state.sales);
+        document.getElementById('tapValue').textContent = compact(tapPower());
+      }
+      function renderUpgrades() {
+        if (upgradesRendered) { updateUpgradeAvailability(); return; }
+        const list = document.getElementById('upgradeList');
+        list.replaceChildren();
+        let previousKind = '';
+        for (const p of products) {
+          if (p.kind !== previousKind) {
+            previousKind = p.kind;
+            const label = document.createElement('div'); label.className='section-label';
+            label.textContent = p.kind === 'click' ? t('clickCategory') : t('staffCategory'); list.appendChild(label);
+          }
+          const card = document.createElement('div'); card.className='upgrade'; card.dataset.id=p.id; card.dataset.type=p.kind;
+          const icon = document.createElement('div'); icon.className='upgrade-icon'; icon.textContent=p.icon;
+          const details = document.createElement('div');
+          const name = document.createElement('div'); name.className='upgrade-name'; name.textContent=productName(p);
+          const desc = document.createElement('div'); desc.className='upgrade-desc'; desc.textContent=productDescription(p);
+          const owned = document.createElement('div'); owned.className='upgrade-owned'; owned.dataset.owned=p.id;
+          details.append(name,desc,owned);
+          const button = document.createElement('button'); button.className='buy-button'; button.type='button'; button.dataset.buy=p.id;
+          card.append(icon,details,button); list.appendChild(card);
+        }
+        upgradesRendered=true;
+        updateUpgradeAvailability();
+      }
+      function updateUpgradeAvailability() {
+        for (const p of products) {
+          const card = document.querySelector('.upgrade[data-id="'+p.id+'"]');
+          if (!card) continue;
+          const count = selectedCount(p); const cost = count ? bundleCost(p,count) : 0;
+          const button = card.querySelector('.buy-button');
+          const soldOut = state.levels[p.id] >= MAX_LEVEL;
+          const priced = count > 0 && Number.isFinite(cost);
+          const affordable = priced && state.cash >= cost;
+          button.disabled = !affordable;
+          button.innerHTML = priced ? t('buyButton',{count,cost:compact(cost)}) : soldOut ? t('soldOut') : t('notEnough');
+          button.setAttribute('aria-label', priced ? t('buyAria',{name:productName(p),count,cost:money(cost)}) : soldOut ? t('soldOutAria',{name:productName(p)}) : t('cannotBuyAria',{name:productName(p)}));
+          card.classList.toggle('locked',!affordable);
+          card.querySelector('[data-owned="'+p.id+'"]').textContent = t('owned',{count:new Intl.NumberFormat(language === 'th' ? 'th-TH' : 'en-US').format(state.levels[p.id])});
+        }
+      }
+      function renderProgress() {
+        const milestone = MILESTONES.find(m => state.totalEarned < m.target && !state.milestones.includes(m.target));
+        if (!milestone) {
+          document.getElementById('targetChip').textContent=t('targetComplete');
+          document.getElementById('progressBar').style.width='100%';
+          document.getElementById('progressText').textContent=t('progressComplete');
+          document.getElementById('progressPct').textContent='100%';
+          document.querySelector('.progress').setAttribute('aria-valuenow','100');
+          return;
+        }
+        const previous = MILESTONES[MILESTONES.indexOf(milestone)-1]?.target || 0;
+        const pct = Math.max(0,Math.min(100,((state.totalEarned-previous)/(milestone.target-previous))*100));
+        document.getElementById('targetChip').textContent=t('goalBonus',{amount:compact(milestone.reward)});
+        document.getElementById('progressBar').style.width=pct+'%';
+        document.getElementById('progressText').textContent=t('progressEarned',{amount:compact(state.totalEarned),target:compact(milestone.target)});
+        document.getElementById('progressPct').textContent=Math.floor(pct)+'%';
+        document.querySelector('.progress').setAttribute('aria-valuenow',String(Math.floor(pct)));
+      }
+      function renderStage() {
+        let stage=STAGES[0];
+        for (const item of STAGES) if (state.totalEarned >= item.at) stage=item;
+        const stageName=language==='th'?stage.name:stage.nameEn;
+        document.getElementById('stagePill').textContent=stage.icon+' '+stageName;
+        document.getElementById('sceneCaption').textContent=language==='th'?stage.caption:stage.captionEn;
+        document.getElementById('shopSign').textContent=stageName+' ✦';
+      }
+      let questsRendered=false, upgradesRendered=false;
+      function renderQuests() {
+        dailyKeyCheck();
+        const grid=document.getElementById('questGrid');
+        if (!questsRendered) {
+          grid.replaceChildren();
+          for (const q of quests) {
+            const card=document.createElement('article'); card.className='quest'; card.dataset.quest=q.id;
+            const top=document.createElement('div'); top.className='quest-top';
+            const title=document.createElement('div'); title.className='quest-title'; title.textContent=questTitle(q);
+            const reward=document.createElement('div'); reward.className='quest-reward'; reward.textContent='+'+money(q.reward);
+            top.append(title,reward);
+            const progress=document.createElement('div'); progress.className='quest-progress'; progress.setAttribute('role','progressbar'); progress.setAttribute('aria-valuemin','0'); progress.setAttribute('aria-valuemax',String(q.goal));
+            const fill=document.createElement('span'); progress.appendChild(fill);
+            const foot=document.createElement('div'); foot.className='quest-foot';
+            const count=document.createElement('span'); count.dataset.counter=q.id;
+            const claim=document.createElement('button'); claim.className='claim-button'; claim.type='button'; claim.dataset.claim=q.id;
+            claim.addEventListener('click',()=>claimQuest(q.id));
+            foot.append(count,claim); card.append(top,progress,foot); grid.appendChild(card);
+          }
+          questsRendered=true;
+        }
+        for (const q of quests) {
+          const card=grid.querySelector('[data-quest="'+q.id+'"]');
+          const value=Math.max(0,Math.min(q.goal,Number(state.daily[q.id==='earn'?'earned':q.id])||0));
+          const done=value>=q.goal, claimed=state.daily.claimed.includes(q.id);
+          const progress=card.querySelector('.quest-progress');
+          progress.setAttribute('aria-valuenow',String(Math.floor(value)));
+          progress.firstElementChild.style.width=(value/q.goal*100)+'%';
+          card.querySelector('[data-counter="'+q.id+'"]').textContent=q.id==='earn' ? compact(value)+' / '+compact(q.goal) : new Intl.NumberFormat(language === 'th' ? 'th-TH' : 'en-US').format(Math.floor(value))+' / '+q.goal;
+          const claim=card.querySelector('[data-claim="'+q.id+'"]');
+          claim.textContent=claimed?t('questClaimed'):done?t('questClaim'):t('questContinue');
+          claim.disabled=!done||claimed;
+          claim.setAttribute('aria-label',claimed?t('questClaimAria'):done?t('questReadyAria',{amount:money(q.reward)}):t('questIncompleteAria'));
+        }
+        const stamp=t('dailyToday',{date:new Intl.DateTimeFormat(language==='th'?'th-TH':'en-US',{day:'numeric',month:'short'}).format(new Date())});
+        const stampEl=document.getElementById('dailyStamp');
+        if (stampEl.textContent!==stamp) stampEl.textContent=stamp;
+      }
+      function renderCombo(now=performance.now()) {
+        const remaining=Math.max(0,COMBO_WINDOW_MS-(now-lastTapAt));
+        const active=combo>0&&remaining>0;
+        const multiplier=active?1+Math.min(5,Math.floor(combo/5))*0.2:1;
+        document.getElementById('comboLabel').textContent=active?t('comboActive',{count:combo,multiplier:multiplier.toFixed(1)}):t('comboIdle');
+        document.getElementById('comboBar').style.width=active?(remaining/COMBO_WINDOW_MS*100)+'%':'0%';
+        if (!active && combo) combo=0;
+      }
+      function renderAll() { renderStats(); renderUpgrades(); renderProgress(); renderStage(); renderQuests(); renderCombo(); }
+      function showToast(message) {
+        const el=document.getElementById('toast'); el.textContent=message; el.classList.add('show');
+        clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2300);
+      }
+      function floatMoney(text,x,y) {
+        const el=document.createElement('span'); el.className='float-text'; el.textContent=text;
+        el.style.left=x+'px'; el.style.top=y+'px'; document.getElementById('floatLayer').appendChild(el);
+        setTimeout(()=>el.remove(),900);
+      }
+      function playClick() {
+        if (!state.sound) return;
+        try {
+          audioContext ||= new (window.AudioContext||window.webkitAudioContext)();
+          if (audioContext.state==='suspended') audioContext.resume();
+          const osc=audioContext.createOscillator(), gain=audioContext.createGain();
+          osc.type='sine'; osc.frequency.value=combo>=5?790:660;
+          gain.gain.setValueAtTime(.035,audioContext.currentTime);
+          gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.065);
+          osc.connect(gain); gain.connect(audioContext.destination); osc.start(); osc.stop(audioContext.currentTime+.07);
+        } catch (_) { /* Audio is optional. */ }
+      }
+      function applyMilestones() {
+        const earned=[];
+        for (const m of MILESTONES) {
+          if (state.totalEarned>=m.target&&!state.milestones.includes(m.target)) {
+            state.milestones.push(m.target); state.cash=safeAdd(state.cash,m.reward); earned.push(m.reward);
+          }
+        }
+        if (earned.length) {
+          const total=earned.reduce((a,b)=>a+b,0);
+          showToast(t('milestone',{amount:money(total)}));
+        }
+      }
+      function addEarned(amount, countForDaily=true) {
+        const value=safeNumber(amount);
+        if (!value) return;
+        state.cash=safeAdd(state.cash,value); state.totalEarned=safeAdd(state.totalEarned,value);
+        if (countForDaily) state.daily.earned=safeAdd(state.daily.earned,value);
+        applyMilestones();
+      }
+      function sell(event) {
+        const now=Date.now(), comboNow=performance.now();
+        combo=(comboNow-lastTapAt<=COMBO_WINDOW_MS)?Math.min(30,combo+1):1;
+        lastTapAt=comboNow;
+        const multiplier=1+Math.min(5,Math.floor(combo/5))*0.2;
+        const amount=Math.max(1,Math.floor(tapPower()*multiplier));
+        addEarned(amount); state.sales=Math.min(Number.MAX_SAFE_INTEGER,state.sales+1); state.daily.sales=Math.min(Number.MAX_SAFE_INTEGER,state.daily.sales+1);
+        const rect=document.getElementById('scene').getBoundingClientRect();
+        const x=event&&Number.isFinite(event.clientX)?event.clientX:rect.left+rect.width/2;
+        const y=event&&Number.isFinite(event.clientY)?event.clientY:rect.top+rect.height*.68;
+        floatMoney('+'+money(amount)+(multiplier>1?' ×'+multiplier.toFixed(1):''),x,y);
+        playClick(); renderStats(); renderUpgrades(); renderProgress(); renderStage(); renderQuests(); renderCombo(comboNow); save();
+      }
+      function buy(id) {
+        const p=products.find(item=>item.id===id); if (!p) return;
+        const count=selectedCount(p); if (!count) return;
+        const cost=bundleCost(p,count); if (!Number.isFinite(cost)||state.cash<cost) return;
+        state.cash=Math.max(0,state.cash-cost); state.levels[id]=Math.min(MAX_LEVEL,state.levels[id]+count);
+        state.daily.buys=Math.min(Number.MAX_SAFE_INTEGER,state.daily.buys+count);
+        showToast(t('upgradeToast',{name:productName(p),count}));
+        renderStats(); renderUpgrades(); renderProgress(); renderQuests(); save();
+      }
+      function claimQuest(id) {
+        const q=quests.find(item=>item.id===id); if (!q||state.daily.claimed.includes(id)||state.daily[q.id==='earn'?'earned':q.id]<q.goal) return;
+        state.daily.claimed.push(id); state.cash=safeAdd(state.cash,q.reward);
+        showToast(t('questToast',{amount:money(q.reward)}));
+        renderStats(); renderUpgrades(); renderQuests(); save();
+      }
+      function updateGame(elapsedSeconds) {
+        const seconds=Math.min(OFFLINE_CAP_SECONDS,Math.max(0,elapsedSeconds));
+        const income=incomePerSecond();
+        if (income>0&&seconds>0) addEarned(income*seconds);
+      }
+      function applyOfflineEarnings(previousDailyKey) {
+        const now=Date.now();
+        const seconds=Math.min(OFFLINE_CAP_SECONDS,Math.max(0,(now-state.lastTick)/1000));
+        const rate=incomePerSecond();
+        if (rate>0&&seconds>0) {
+          const amount=rate*seconds;
+          const sameDay=previousDailyKey===localDayKey();
+          addEarned(amount,sameDay);
+          if (amount>=1) showToast(t('returnToast',{amount:money(amount)}));
+        }
+        state.lastTick=now; lastActiveTick=now;
+      }
+      function tick() {
+        const now=Date.now();
+        const elapsed=Math.min(OFFLINE_CAP_SECONDS,Math.max(0,(now-lastActiveTick)/1000));
+        lastActiveTick=now;
+        const dailyResetNeeded=state.daily.key!==localDayKey();
+        if (elapsed>0 && (incomePerSecond()>0 || dailyResetNeeded)) {
+          if (dailyResetNeeded) dailyKeyCheck();
+          updateGame(elapsed);
+          renderStats(); updateUpgradeAvailability(); renderProgress(); renderStage(); renderQuests();
+        }
+        renderCombo(performance.now());
+      }
+
+      document.getElementById('sellButton').addEventListener('click',sell);
+      document.getElementById('upgradeList').addEventListener('click',event=>{
+        const button=event.target.closest('[data-buy]'); if (button&&!button.disabled) buy(button.dataset.buy);
+      });
+      document.querySelectorAll('[data-quantity]').forEach(button=>button.addEventListener('click',()=>{
+        quantity=button.dataset.quantity==='max'?'max':Number(button.dataset.quantity);
+        document.querySelectorAll('[data-quantity]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+        updateUpgradeAvailability();
+      }));
+      document.getElementById('soundButton').addEventListener('click',event=>{
+        state.sound=!state.sound; event.currentTarget.textContent=state.sound?'🔈':'🔇';
+        event.currentTarget.setAttribute('aria-label',state.sound?t('soundOff'):t('soundOn')); save();
+      });
+      document.addEventListener('keydown',event=>{
+        if ((event.code==='Space'||event.code==='Enter')&&!event.repeat&&!/^(BUTTON|INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'')&&!document.activeElement?.isContentEditable) {
+          event.preventDefault(); sell();
+        } else if (['ArrowUp','ArrowDown'].includes(event.key) && !/^(BUTTON|INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'')) {
+          event.preventDefault();
+        }
+      });
+      document.addEventListener('visibilitychange',()=>{ if (document.visibilityState==='visible') tick(); else save(); });
+      window.addEventListener('pagehide',save);
+
+      const savedDailyKey=state.daily.key;
+      dailyKeyCheck();
+      applyOfflineEarnings(savedDailyKey);
+      document.getElementById('soundButton').textContent=state.sound?'🔈':'🔇';
+      document.getElementById('soundButton').setAttribute('aria-label',state.sound?t('soundOff'):t('soundOn'));
+      renderAll(); save();
+      setInterval(tick,1000);
+      setInterval(save,10000);
+    })();
+    }
+  </script>
+</body>
+</html>
