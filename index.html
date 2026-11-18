@@ -35,6 +35,11 @@
     .save-dot { width:7px; height:7px; background:#62ad73; border-radius:50%; box-shadow:0 0 0 3px #62ad7320; }
     .sound-button { cursor:pointer; color:var(--ink); font-size:16px; width:44px; height:44px; padding:0; touch-action:manipulation; }
     .stats { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:11px; margin-bottom:16px; }
+    .section-nav { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:-2px 0 14px; }
+    .section-nav a { display:flex; align-items:center; justify-content:center; gap:7px; min-height:44px; border:1px solid #f0e5d5; border-radius:13px; background:rgba(255,255,255,.9); color:#625748; text-decoration:none; font-size:11px; font-weight:900; box-shadow:0 4px 12px rgba(93,66,34,.035); transition:transform .15s,border-color .15s,background .15s; }
+    .section-nav a:hover { transform:translateY(-1px); border-color:#efbd83; background:#fff9ef; }
+    .section-nav a:focus-visible { outline:3px solid #4c9d71; outline-offset:2px; }
+    #shopSection,#upgradeSection,#questSection { scroll-margin-top:14px; }
     .stat { background:rgba(255,255,255,.84); border:1px solid #f2e6d6; border-radius:17px; padding:13px 16px; box-shadow:0 7px 20px rgba(93,66,34,.035); min-width:0; }
     .stat-label { color:var(--muted); font-size:11px; display:flex; align-items:center; gap:6px; }
     .stat-value { font-size:clamp(18px,2.7vw,24px); font-weight:900; letter-spacing:-.4px; margin-top:3px; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
@@ -88,7 +93,7 @@
     .progress>span { display:block; height:100%; width:0; background:linear-gradient(90deg,#ffbd57,#ed7738); border-radius:inherit; transition:width .3s; }
     .progress-label { margin-top:5px; font-size:9px; color:#92887b; display:flex; justify-content:space-between; gap:8px; }
     .upgrade-tools { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 15px 4px; }
-    .section-label { display:flex; gap:6px; align-items:center; color:#958b7e; text-transform:uppercase; letter-spacing:.35px; font-size:9px; font-weight:900; }
+    .section-label { grid-column:1/-1; display:flex; gap:6px; align-items:center; padding:7px 3px 2px; border-bottom:1px solid #f0e8dc; color:#756858; font-size:10px; font-weight:950; }
     .quantity { display:flex; gap:4px; padding:3px; border-radius:10px; background:#f8f2e9; }
     .quantity button { min-width:44px; min-height:44px; border:0; border-radius:7px; padding:6px 8px; background:transparent; color:#827566; font-size:10px; font-weight:900; cursor:pointer; touch-action:manipulation; }
     .quantity button[aria-pressed="true"] { background:#fff; color:#b75c25; box-shadow:0 1px 5px #76552a1a; }
@@ -107,7 +112,7 @@
     .daily-card { margin-top:16px; padding:17px 19px 18px; }
     .daily-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; }
     .daily-stamp { color:#a87833; background:#fff5df; border-radius:99px; padding:6px 9px; font-size:9px; font-weight:850; white-space:nowrap; }
-    .quest-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+    .quest-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
     .quest { min-width:0; padding:12px; border:1px solid #f0e8dc; border-radius:15px; background:#fffefa; }
     .quest-top { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
     .quest-title { font-size:11px; line-height:1.4; font-weight:850; }
@@ -129,6 +134,7 @@
     @media (max-width:850px) {
       .page { padding:16px 14px 24px; }
       .layout { grid-template-columns:1fr; }
+      .quest-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
       .shop-card { min-height:500px; }
       .side-card { min-height:0; }
       .upgrade-list { grid-template-columns:1fr 1fr; }
@@ -165,6 +171,8 @@
       .daily-card { padding:15px 12px; }
       .daily-head { align-items:flex-start; }
       .quest-grid { grid-template-columns:1fr; gap:7px; }
+      .section-nav { gap:5px; margin-bottom:12px; }
+      .section-nav a { min-height:44px; gap:4px; border-radius:11px; font-size:10px; }
       .quest { padding:10px 11px; }
       .quest-progress { margin-top:7px; }
       .footer { flex-direction:column; text-align:center; }
@@ -203,6 +211,12 @@
       <div class="stat"><div class="stat-label" id="salesLabel">🧾 ขายไปแล้ว</div><div class="stat-value"><span id="sales">0</span> <small id="salesUnit"> ครั้ง</small></div></div>
     </section>
 
+    <nav class="section-nav" aria-label="ทางลัดในเกม">
+      <a href="#shopSection">🏪 <span id="navShop">หน้าร้าน</span></a>
+      <a href="#upgradeSection">🛠️ <span id="navUpgrades">อัปเกรด</span></a>
+      <a href="#questSection">🎯 <span id="navQuests">ภารกิจ</span></a>
+    </nav>
+
     <aside class="quick-guide" role="note" aria-labelledby="quickGuideTitle">
       <div class="quick-guide-copy">
         <h2 class="quick-guide-title" id="quickGuideTitle">เริ่มตรงนี้ · แตะขายเพื่อรับเงิน</h2>
@@ -212,7 +226,7 @@
     </aside>
 
     <section class="layout" aria-label="หน้าร้านและการพัฒนา">
-      <article class="card shop-card">
+      <article class="card shop-card" id="shopSection">
         <div class="shop-head">
           <div><h2 id="shopTitle">หน้าร้านของคุณ</h2><p id="shopTip">เริ่มแตะขาย แล้วลงทุนให้ร้านทำเงินเอง</p></div>
           <div class="open-badge" id="openBadge">● เปิดให้บริการ</div>
@@ -235,7 +249,7 @@
         </div>
       </article>
 
-      <aside class="card side-card">
+      <aside class="card side-card" id="upgradeSection">
         <div class="side-header">
           <div class="side-header-row">
             <div><h2 id="businessTitle">พัฒนากิจการ</h2><p id="businessTip">ลงทุนวันนี้ เพื่อให้ร้านโตไวขึ้น</p></div>
@@ -256,7 +270,7 @@
       </aside>
     </section>
 
-    <section class="card daily-card" aria-labelledby="dailyTitle">
+    <section class="card daily-card" id="questSection" aria-labelledby="dailyTitle">
       <div class="daily-head"><div><h2 id="dailyTitle">🎯 ภารกิจประจำวัน</h2><p id="dailyTip">ทำภารกิจให้ครบเพื่อรับเงินโบนัส</p></div><div class="daily-stamp" id="dailyStamp">รีเซ็ตทุกวัน</div></div>
       <div class="quest-grid" id="questGrid"></div>
     </section>
@@ -273,6 +287,7 @@
       'use strict';
       const COPY = {
         en: {
+          navShop:'Shop', navUpgrades:'Upgrades', navQuests:'Quests', navLabel:'Game sections',
           title:'Happy Shop Idle', tagline:'Tap to sell, keep combos, hire staff, and grow your shop!',
           saved:'Saved', saveError:'Save unavailable', savedTitle:'Game saves automatically on this device', saveErrorTitle:'Storage unavailable — progress may be lost after closing or refreshing this page', saveWarning:'Game progress may be lost after closing or refreshing this page.',
           cashLabel:'💰 Cash in till', incomeLabel:'⚡ Auto income', salesLabel:'🧾 Sales', salesUnit:' items', incomeUnit:' / sec',
@@ -291,11 +306,12 @@
           captionStall:'Make your first sale and bring the shop to life!', captionShop:'Customers are stopping by all day!', captionMart:'Your shop is growing and the shelves are filling up!', captionCafe:'The neighborhood’s favorite café!', captionMall:'A bigger business, built together!', captionEmpire:'From a little shop to your dream business!',
           milestone:'🎉 Shop milestone reached! Bonus: {amount}', comboActive:'Combo {count} · Bonus ×{multiplier}', comboIdle:'Tap quickly to build a combo: every 5 taps adds a bonus (up to ×2)!',
           guideStartTitle:'Start here · tap to earn', guideStartText:'Tap the orange sell button to make your first sale. Every 5 quick taps adds a combo bonus.', guideSaveShelfTitle:'Next · save up for a shelf', guideSaveShelfText:'Earn {amount} more, then buy a Product shelf to earn more per tap.', guideBuyShelfTitle:'Next · buy a shelf', guideBuyShelfText:'You have enough cash for a shelf. Open Upgrades below and tap Buy ×1.', guideSaveHelperTitle:'Next · hire an assistant', guideSaveHelperText:'Save up {amount} more for the Shop assistant. It earns ฿1 every second automatically.', guideBuyHelperTitle:'Almost automatic · hire help', guideBuyHelperText:'You can afford the Shop assistant. Buy it below to earn ฿1 every second.', guideRunningTitle:'Your shop earns automatically!', guideRunningText:'Staff bring in cash every second. Buy more upgrades or scroll down to try a daily quest.', guideGoSell:'Go to sell button', guideViewUpgrades:'View upgrades', guideViewQuests:'View quests',
-          questSales:'Sell 20 items', questEarn:'Earn ฿300 today', questBuys:'Buy 2 upgrades', questClaimed:'Claimed', questClaim:'Claim reward', questContinue:'Keep going', questClaimAria:'Quest reward already claimed', questReadyAria:'Claim quest reward {amount}', questIncompleteAria:'Complete the quest first',
+          questSales:'Sell 30 items today', questEarn:'Earn ฿500 today', questBuys:'Buy 4 upgrade levels', questCombo:'Reach a 10-tap combo', questClaimed:'Claimed', questClaim:'Claim reward', questNotReady:'Not complete yet', questContinue:'Keep going', questClaimAria:'Quest reward already claimed', questReadyAria:'Claim quest reward {amount}', questIncompleteAria:'Complete the quest first',
           upgradeToast:'{name} upgraded ×{count}!', questToast:'Quest reward claimed: {amount}!', returnToast:'Welcome back! Your shop earned {amount} while you were away',
           soundOff:'Mute sound', soundOn:'Enable sound', soundToggleTitle:'Toggle sound', goalProgress:'Shop goal progress', scene:'Shop illustration'
         },
         th: {
+          navShop:'หน้าร้าน', navUpgrades:'อัปเกรด', navQuests:'ภารกิจ', navLabel:'ทางลัดในเกม',
           title:'ร้านค้าพาเพลิน', tagline:'แตะขาย ทำคอมโบ จ้างทีม แล้วขยายร้าน!',
           saved:'บันทึกแล้ว', saveError:'บันทึกไม่ได้', savedTitle:'บันทึกเกมอัตโนมัติไว้ในอุปกรณ์นี้', saveErrorTitle:'พื้นที่จัดเก็บไม่พร้อม ความคืบหน้าอาจหายเมื่อปิดหรือรีเฟรชหน้า', saveWarning:'บันทึกไม่ได้ในเบราว์เซอร์นี้ — ความคืบหน้าอาจหายเมื่อปิดหรือรีเฟรชหน้า',
           cashLabel:'💰 เงินในลิ้นชัก', incomeLabel:'⚡ รายได้อัตโนมัติ', salesLabel:'🧾 ขายไปแล้ว', salesUnit:' ครั้ง', incomeUnit:' / วินาที',
@@ -314,7 +330,7 @@
           captionStall:'แตะขายครั้งแรก แล้วร้านจะคึกคักขึ้น!', captionShop:'ลูกค้าเริ่มแวะมาไม่ขาดสาย!', captionMart:'ร้านโตขึ้น ชั้นวางก็แน่นขึ้น!', captionCafe:'ร้านดังประจำย่าน ใคร ๆ ก็รู้จัก!', captionMall:'กิจการใหญ่ขึ้น ขอบคุณที่ช่วยกัน!', captionEmpire:'จากร้านเล็ก ๆ สู่ธุรกิจในฝัน!',
           milestone:'🎉 ถึงเป้าหมายร้านแล้ว! รับโบนัส {amount}', comboActive:'คอมโบ {count} ครั้ง · โบนัส ×{multiplier}', comboIdle:'แตะต่อเนื่องทุก 5 ครั้ง รับโบนัสสูงสุด ×2!',
           guideStartTitle:'เริ่มตรงนี้ · แตะขายเพื่อรับเงิน', guideStartText:'แตะปุ่มสีส้มเพื่อขายครั้งแรก แตะต่อเนื่องทุก 5 ครั้งรับโบนัสคอมโบ', guideSaveShelfTitle:'ขั้นต่อไป · เก็บเงินซื้อชั้นวาง', guideSaveShelfText:'เก็บเงินอีก {amount} แล้วซื้อชั้นวาง เพื่อรับเงินเพิ่มต่อการแตะ', guideBuyShelfTitle:'ขั้นต่อไป · ซื้อชั้นวางสินค้า', guideBuyShelfText:'ตอนนี้มีเงินพอซื้อชั้นวางแล้ว เลื่อนลงไปที่อัปเกรดแล้วแตะซื้อ ×1', guideSaveHelperTitle:'ขั้นต่อไป · จ้างผู้ช่วย', guideSaveHelperText:'เก็บเงินอีก {amount} เพื่อจ้างผู้ช่วยหน้าร้าน รับรายได้อัตโนมัติ ฿1 ทุกวินาที', guideBuyHelperTitle:'อีกนิดเดียว · จ้างผู้ช่วยให้ร้าน', guideBuyHelperText:'มีเงินพอแล้ว เลื่อนลงไปซื้อผู้ช่วยหน้าร้าน เพื่อรับ ฿1 ทุกวินาที', guideRunningTitle:'ร้านเริ่มทำเงินอัตโนมัติแล้ว!', guideRunningText:'ทีมงานจะช่วยเพิ่มเงินทุกวินาที ลองซื้ออัปเกรดเพิ่มหรือเลื่อนลงไปทำภารกิจประจำวัน', guideGoSell:'ไปที่ปุ่มขาย', guideViewUpgrades:'ดูอัปเกรด', guideViewQuests:'ดูภารกิจ',
-          questSales:'ขายสินค้าให้ลูกค้า 20 ครั้ง', questEarn:'ทำรายได้รวมวันนี้ ฿300', questBuys:'ซื้ออัปเกรดให้ร้าน 2 ครั้ง', questClaimed:'รับแล้ว', questClaim:'รับโบนัส', questContinue:'ทำต่อ', questClaimAria:'รับรางวัลภารกิจแล้ว', questReadyAria:'รับรางวัลภารกิจ {amount}', questIncompleteAria:'ทำภารกิจให้ครบก่อน',
+          questSales:'ขายสินค้าให้ลูกค้า 30 ครั้ง', questEarn:'ทำรายได้รวมวันนี้ ฿500', questBuys:'ซื้ออัปเกรดรวม 4 ระดับ', questCombo:'ทำคอมโบให้ครบ 10 ครั้ง', questClaimed:'รับแล้ว', questClaim:'รับโบนัส', questNotReady:'ยังไม่สำเร็จ', questContinue:'ทำต่อ', questClaimAria:'รับรางวัลภารกิจแล้ว', questReadyAria:'รับรางวัลภารกิจ {amount}', questIncompleteAria:'ทำภารกิจให้ครบก่อน',
           upgradeToast:'อัปเกรด {name} ×{count} แล้ว!', questToast:'รับโบนัสภารกิจ {amount} แล้ว!', returnToast:'ยินดีต้อนรับกลับ! ร้านทำเงินให้ {amount} ตอนที่คุณไม่อยู่',
           soundOff:'ปิดเสียง', soundOn:'เปิดเสียง', soundToggleTitle:'เปิดหรือปิดเสียง', goalProgress:'ความคืบหน้าสู่เป้าหมายร้าน', scene:'ภาพร้านค้า'
         }
@@ -335,6 +351,7 @@
           : 'Build a cheerful neighborhood shop in this relaxing idle clicker. Tap to sell, hire helpers, complete daily quests, and grow your business.';
         const entries = {
           gameTitle:'title', brandTagline:'tagline', cashLabel:'cashLabel', incomeLabel:'incomeLabel', salesLabel:'salesLabel', salesUnit:'salesUnit', incomeUnit:'incomeUnit',
+          navShop:'navShop', navUpgrades:'navUpgrades', navQuests:'navQuests',
           shopTitle:'shopTitle', shopTip:'shopTip', openBadge:'openBadge', sceneCaption:'captionStall', tapInstruction:'tapInstruction', perSale:'perSale',
           comboLabel:'comboHint', sellButtonText:'sellButtonText', businessTitle:'businessTitle', businessTip:'businessTip', upgradeSectionTitle:'upgradeSectionTitle',
           dailyTitle:'dailyTitle', dailyTip:'dailyTip', dailyStamp:'dailyReset', footerSave:'footerSave', footerCurrency:'footerCurrency', quantityMax:'quantityMax', saveWarning:'saveWarning'
@@ -351,6 +368,8 @@
         if (stats) stats.setAttribute('aria-label', window.shopGameLang === 'th' ? 'สถานะร้าน' : 'Shop status');
         const layout = document.querySelector('.layout');
         if (layout) layout.setAttribute('aria-label', window.shopGameLang === 'th' ? 'หน้าร้านและการพัฒนา' : 'Shop and upgrades');
+        const sectionNav = document.querySelector('.section-nav');
+        if (sectionNav) sectionNav.setAttribute('aria-label', t('navLabel'));
         const scene = document.getElementById('scene');
         if (scene) scene.setAttribute('aria-label', t('sceneAlt'));
         const progress = document.querySelector('.progress');
@@ -460,22 +479,23 @@
         { at: 250000, name: 'อาณาจักรร้านค้า', nameEn:'Shop empire', icon: '👑', caption: 'จากร้านเล็ก ๆ สู่ธุรกิจในฝัน!', captionEn:'From a little shop to your dream business!' }
       ];
       const products = [
-        { id:'shelf', kind:'click', icon:'🧺', name:'ชั้นวางสินค้า', nameEn:'Product shelf', desc:'เพิ่มเงินต่อการแตะ +฿1', descEn:'Earn +฿1 per tap', baseCost:15, factor:1.48, value:1 },
+        { id:'shelf', kind:'click', icon:'🧺', name:'ชั้นวางสินค้า', nameEn:'Product shelf', desc:'เพิ่มเงินต่อการแตะ +฿1', descEn:'Earn +฿1 per tap', baseCost:12, factor:1.48, value:1 },
         { id:'register', kind:'click', icon:'🧾', name:'เครื่องคิดเงินไว', nameEn:'Fast cash register', desc:'เพิ่มเงินต่อการแตะ +฿4', descEn:'Earn +฿4 per tap', baseCost:85, factor:1.62, value:4 },
         { id:'sign', kind:'click', icon:'✨', name:'ป้ายร้านสะดุดตา', nameEn:'Eye-catching shop sign', desc:'เพิ่มเงินต่อการแตะ +฿12', descEn:'Earn +฿12 per tap', baseCost:360, factor:1.72, value:12 },
-        { id:'helper', kind:'staff', icon:'🧑‍🍳', name:'ผู้ช่วยหน้าร้าน', nameEn:'Shop assistant', desc:'ช่วยขายอัตโนมัติ +฿1/วินาที', descEn:'Automatic sales +฿1/sec', baseCost:50, factor:1.50, value:1 },
+        { id:'helper', kind:'staff', icon:'🧑‍🍳', name:'ผู้ช่วยหน้าร้าน', nameEn:'Shop assistant', desc:'ช่วยขายอัตโนมัติ +฿1/วินาที', descEn:'Automatic sales +฿1/sec', baseCost:40, factor:1.50, value:1 },
         { id:'barista', kind:'staff', icon:'☕', name:'บาริสต้ามือโปร', nameEn:'Pro barista', desc:'ชงไว ขายคล่อง +฿6/วินาที', descEn:'Fast service +฿6/sec', baseCost:250, factor:1.60, value:6 },
         { id:'manager', kind:'staff', icon:'🧑‍💼', name:'ผู้จัดการร้าน', nameEn:'Shop manager', desc:'บริหารร้านเก่ง +฿30/วินาที', descEn:'Expert management +฿30/sec', baseCost:1200, factor:1.72, value:30 }
       ];
       const quests = [
-        { id:'sales', title:'ขายสินค้าให้ลูกค้า 20 ครั้ง', titleEn:'Sell 20 items', goal:20, reward:50 },
-        { id:'earn', title:'ทำรายได้รวมวันนี้ ฿300', titleEn:'Earn ฿300 today', goal:300, reward:70 },
-        { id:'buys', title:'ซื้ออัปเกรดให้ร้าน 2 ครั้ง', titleEn:'Buy 2 upgrades', goal:2, reward:100 }
+        { id:'sales', title:'ขายสินค้าให้ลูกค้า 30 ครั้ง', titleEn:'Sell 30 items today', goal:30, reward:80 },
+        { id:'earn', title:'ทำรายได้รวมวันนี้ ฿500', titleEn:'Earn ฿500 today', goal:500, reward:100 },
+        { id:'buys', title:'ซื้ออัปเกรดรวม 4 ระดับ', titleEn:'Buy 4 upgrade levels', goal:4, reward:140 },
+        { id:'combo', title:'ทำคอมโบให้ครบ 10 ครั้ง', titleEn:'Reach a 10-tap combo', goal:10, reward:100 }
       ];
       const defaults = {
         cash:0, totalEarned:0, sales:0,
         levels:{shelf:0,register:0,sign:0,helper:0,barista:0,manager:0},
-        lastTick:Date.now(), sound:true, milestones:[], daily:{key:'',sales:0,earned:0,buys:0,claimed:[]}
+        lastTick:Date.now(), sound:true, milestones:[], daily:{key:'',sales:0,earned:0,buys:0,combo:0,claimed:[]}
       };
       let quantity = 1;
       let state = loadState();
@@ -505,7 +525,8 @@
             key: /^\d{4}-\d{2}-\d{2}$/.test(String(oldDaily.key || '')) ? String(oldDaily.key) : '',
             sales: Math.floor(safeNumber(oldDaily.sales, 0, Number.MAX_SAFE_INTEGER)),
             earned: safeNumber(oldDaily.earned),
-            buys: Math.floor(safeNumber(oldDaily.buys, 0, Number.MAX_SAFE_INTEGER)),
+            buys:Math.floor(safeNumber(oldDaily.buys, 0, Number.MAX_SAFE_INTEGER)),
+            combo:Math.floor(safeNumber(oldDaily.combo, 0, 30)),
             claimed: Array.isArray(oldDaily.claimed) ? [...new Set(oldDaily.claimed.filter(id => quests.some(q => q.id === id)))] : []
           };
           const milestones = Array.isArray(saved.milestones)
@@ -523,7 +544,7 @@
         } catch (_) { return structuredDefaults(); }
       }
       function structuredDefaults() {
-        return { ...defaults, levels:{...defaults.levels}, milestones:[], daily:{key:'',sales:0,earned:0,buys:0,claimed:[]} };
+        return { ...defaults, levels:{...defaults.levels}, milestones:[], daily:{key:'',sales:0,earned:0,buys:0,combo:0,claimed:[]} };
       }
       function save() {
         state.lastTick = Date.now();
@@ -555,7 +576,7 @@
         const amount = safeNumber(value);
         return amount >= 1e4 ? '฿' + compactFormatter.format(amount) : money(amount);
       }
-      function tapPower() { return 1 + products.filter(p=>p.kind==='click').reduce((sum,p)=>sum+state.levels[p.id]*p.value,0); }
+      function tapPower() { return 2 + products.filter(p=>p.kind==='click').reduce((sum,p)=>sum+state.levels[p.id]*p.value,0); }
       function incomePerSecond() { return products.filter(p=>p.kind==='staff').reduce((sum,p)=>sum+state.levels[p.id]*p.value,0); }
       function nextCost(product, level = state.levels[product.id]) { return Math.ceil(product.baseCost*Math.pow(product.factor,level)); }
       function bundleCost(product, count) {
@@ -583,7 +604,12 @@
       function formatRate(value) { return new Intl.NumberFormat(language === 'th' ? 'th-TH' : 'en-US',{maximumFractionDigits:1}).format(value); }
       function dailyKeyCheck() {
         const today = localDayKey();
-        if (!state.daily || state.daily.key !== today) state.daily = { key:today, sales:0, earned:0, buys:0, claimed:[] };
+        if (!state.daily || state.daily.key !== today) state.daily = { key:today, sales:0, earned:0, buys:0, combo:0, claimed:[] };
+      }
+      function questProgress(quest) {
+        if (quest.id==='earn') return safeNumber(state.daily.earned);
+        if (quest.id==='combo') return safeNumber(state.daily.combo);
+        return safeNumber(state.daily[quest.id]);
       }
       function renderStats() {
         document.getElementById('cash').textContent = compact(state.cash);
@@ -681,14 +707,14 @@
         }
         for (const q of quests) {
           const card=grid.querySelector('[data-quest="'+q.id+'"]');
-          const value=Math.max(0,Math.min(q.goal,Number(state.daily[q.id==='earn'?'earned':q.id])||0));
+          const value=Math.max(0,Math.min(q.goal,questProgress(q)));
           const done=value>=q.goal, claimed=state.daily.claimed.includes(q.id);
           const progress=card.querySelector('.quest-progress');
           progress.setAttribute('aria-valuenow',String(Math.floor(value)));
           progress.firstElementChild.style.width=(value/q.goal*100)+'%';
           card.querySelector('[data-counter="'+q.id+'"]').textContent=q.id==='earn' ? compact(value)+' / '+compact(q.goal) : new Intl.NumberFormat(language === 'th' ? 'th-TH' : 'en-US').format(Math.floor(value))+' / '+q.goal;
           const claim=card.querySelector('[data-claim="'+q.id+'"]');
-          claim.textContent=claimed?t('questClaimed'):done?t('questClaim'):t('questContinue');
+          claim.textContent=claimed?t('questClaimed'):done?t('questClaim'):t('questNotReady');
           claim.disabled=!done||claimed;
           claim.setAttribute('aria-label',claimed?t('questClaimAria'):done?t('questReadyAria',{amount:money(q.reward)}):t('questIncompleteAria'));
         }
@@ -782,8 +808,8 @@
         combo=(comboNow-lastTapAt<=COMBO_WINDOW_MS)?Math.min(30,combo+1):1;
         lastTapAt=comboNow;
         const multiplier=1+Math.min(5,Math.floor(combo/5))*0.2;
-        const amount=Math.max(1,Math.floor(tapPower()*multiplier));
-        addEarned(amount); state.sales=Math.min(Number.MAX_SAFE_INTEGER,state.sales+1); state.daily.sales=Math.min(Number.MAX_SAFE_INTEGER,state.daily.sales+1);
+        const amount=Math.max(1,Math.ceil(tapPower()*multiplier));
+        addEarned(amount); state.sales=Math.min(Number.MAX_SAFE_INTEGER,state.sales+1); state.daily.sales=Math.min(Number.MAX_SAFE_INTEGER,state.daily.sales+1); state.daily.combo=Math.max(state.daily.combo,combo);
         const rect=document.getElementById('scene').getBoundingClientRect();
         const x=event&&Number.isFinite(event.clientX)?event.clientX:rect.left+rect.width/2;
         const y=event&&Number.isFinite(event.clientY)?event.clientY:rect.top+rect.height*.68;
@@ -800,7 +826,7 @@
         renderStats(); renderUpgrades(); renderProgress(); renderQuests(); renderQuickGuide(); save();
       }
       function claimQuest(id) {
-        const q=quests.find(item=>item.id===id); if (!q||state.daily.claimed.includes(id)||state.daily[q.id==='earn'?'earned':q.id]<q.goal) return;
+        const q=quests.find(item=>item.id===id); if (!q||state.daily.claimed.includes(id)||questProgress(q)<q.goal) return;
         state.daily.claimed.push(id); state.cash=safeAdd(state.cash,q.reward);
         showToast(t('questToast',{amount:money(q.reward)}));
         renderStats(); renderUpgrades(); renderQuests(); renderQuickGuide(); save();
