@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="th">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#fff6e8">
-  <meta name="description" content="Build a cheerful neighborhood shop in this relaxing idle clicker. Tap to sell, hire helpers, complete daily quests, and grow your business.">
-  <title>Happy Shop Idle — Tap, Sell, Grow</title>
+  <meta name="description" content="ร้านค้าพาเพลิน เกมบริหารร้านภาษาไทย แตะขาย ทำคอมโบ จ้างทีม และทำภารกิจประจำวัน">
+  <title>ร้านค้าพาเพลิน — แตะขาย ขยายร้าน</title>
   <style>
     :root {
       color-scheme: light;
@@ -178,72 +178,72 @@
     <header class="topbar">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">🏪</div>
-        <div><h1 id="gameTitle">Happy Shop Idle</h1><p id="brandTagline">Tap to sell, keep combos, hire staff, and grow your shop!</p></div>
+        <div><h1 id="gameTitle">ร้านค้าพาเพลิน</h1><p id="brandTagline">แตะขาย ทำคอมโบ จ้างทีม แล้วขยายร้าน!</p></div>
       </div>
       <div class="top-actions">
-        <div class="save-pill" id="saveStatus" data-state="saved" title="Game saves automatically on this device" role="status" aria-live="polite"><span class="save-dot"></span><span id="saveText">Saved</span></div>
-        <button class="sound-button" id="soundButton" type="button" aria-label="Mute sound" title="Toggle sound">🔈</button>
+        <div class="save-pill" id="saveStatus" data-state="saved" title="บันทึกเกมอัตโนมัติไว้ในอุปกรณ์นี้" role="status" aria-live="polite"><span class="save-dot"></span><span id="saveText">บันทึกแล้ว</span></div>
+        <button class="sound-button" id="soundButton" type="button" aria-label="ปิดเสียง" title="เปิดหรือปิดเสียง">🔈</button>
       </div>
     </header>
 
-    <p class="save-warning" id="saveWarning" role="alert" aria-live="assertive">Game progress may be lost after closing or refreshing this page.</p>
-    <section class="stats" aria-label="Shop status">
-      <div class="stat"><div class="stat-label" id="cashLabel">💰 Cash in till</div><div class="stat-value" id="cash">฿0</div></div>
-      <div class="stat"><div class="stat-label" id="incomeLabel">⚡ Auto income</div><div class="stat-value"><span id="income">0</span><small id="incomeUnit"> / sec</small></div></div>
-      <div class="stat"><div class="stat-label" id="salesLabel">🧾 Sales</div><div class="stat-value"><span id="sales">0</span> <small id="salesUnit"> items</small></div></div>
+    <p class="save-warning" id="saveWarning" role="alert" aria-live="assertive">บันทึกไม่ได้ในเบราว์เซอร์นี้ — ความคืบหน้าอาจหายเมื่อปิดหรือรีเฟรชหน้า</p>
+    <section class="stats" aria-label="สถานะร้าน">
+      <div class="stat"><div class="stat-label" id="cashLabel">💰 เงินในลิ้นชัก</div><div class="stat-value" id="cash">฿0</div></div>
+      <div class="stat"><div class="stat-label" id="incomeLabel">⚡ รายได้อัตโนมัติ</div><div class="stat-value"><span id="income">0</span><small id="incomeUnit"> / วินาที</small></div></div>
+      <div class="stat"><div class="stat-label" id="salesLabel">🧾 ขายไปแล้ว</div><div class="stat-value"><span id="sales">0</span> <small id="salesUnit"> ครั้ง</small></div></div>
     </section>
 
-    <section class="layout" aria-label="Shop and upgrades">
+    <section class="layout" aria-label="หน้าร้านและการพัฒนา">
       <article class="card shop-card">
         <div class="shop-head">
-          <div><h2 id="shopTitle">Your shop</h2><p id="shopTip">Tap to sell, then invest to automate the shop</p></div>
-          <div class="open-badge" id="openBadge">● Open</div>
+          <div><h2 id="shopTitle">หน้าร้านของคุณ</h2><p id="shopTip">เริ่มแตะขาย แล้วลงทุนให้ร้านทำเงินเอง</p></div>
+          <div class="open-badge" id="openBadge">● เปิดให้บริการ</div>
         </div>
-        <div class="scene" id="scene" aria-label="A cute neighborhood shop">
+        <div class="scene" id="scene" aria-label="ภาพร้านค้าสไตล์น่ารัก">
           <div class="sun" aria-hidden="true"></div><div class="cloud" aria-hidden="true">☁</div>
-          <div class="stage-pill" id="stagePill">🌱 Street stall</div>
+          <div class="stage-pill" id="stagePill">🌱 ร้านแผงลอย</div>
           <div class="shop-building" aria-hidden="true">
-            <div class="shop-sign" id="shopSign">Street stall ✦</div>
+            <div class="shop-sign" id="shopSign">ร้านแผงลอย ✦</div>
             <div class="awning"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
             <div class="storefront"><div class="window"></div><div class="door"></div><div class="window"></div></div>
           </div>
           <div class="plant left" aria-hidden="true">🪴</div><div class="plant right" aria-hidden="true">🌼</div>
-          <div class="scene-caption" id="sceneCaption">Make your first sale and bring the shop to life!</div>
+          <div class="scene-caption" id="sceneCaption">แตะขายครั้งแรก แล้วร้านจะคึกคักขึ้น!</div>
         </div>
         <div class="sell-area">
-          <div class="tap-info"><span id="tapInstruction">Tap once to earn</span> <strong id="tapValue">฿1</strong> <span id="perSale">per sale</span></div>
-          <div class="combo-row" aria-live="polite"><span id="comboLabel">Keep tapping to build a combo!</span><div class="combo-meter" aria-hidden="true"><span id="comboBar"></span></div></div>
-          <button class="sell-button" id="sellButton" type="button"><span class="sell-icon" aria-hidden="true">🛍️</span><span id="sellButtonText">Tap to sell</span></button>
+          <div class="tap-info"><span id="tapInstruction">แตะหนึ่งครั้ง รับ</span> <strong id="tapValue">฿1</strong> <span id="perSale">ต่อการขาย</span></div>
+          <div class="combo-row" aria-live="polite"><span id="comboLabel">แตะต่อเนื่องทุก 5 ครั้ง รับโบนัสสูงสุด ×2!</span><div class="combo-meter" aria-hidden="true"><span id="comboBar"></span></div></div>
+          <button class="sell-button" id="sellButton" type="button"><span class="sell-icon" aria-hidden="true">🛍️</span><span id="sellButtonText">แตะเพื่อขายสินค้า</span></button>
         </div>
       </article>
 
       <aside class="card side-card">
         <div class="side-header">
           <div class="side-header-row">
-            <div><h2 id="businessTitle">Grow your business</h2><p id="businessTip">Invest today to grow faster</p></div>
-            <div class="target-chip" id="targetChip">Target ฿100</div>
+            <div><h2 id="businessTitle">พัฒนากิจการ</h2><p id="businessTip">ลงทุนวันนี้ เพื่อให้ร้านโตไวขึ้น</p></div>
+            <div class="target-chip" id="targetChip">เป้าหมาย ฿100</div>
           </div>
-          <div class="progress" role="progressbar" aria-label="Progress toward shop goals" aria-valuemin="0" aria-valuemax="100"><span id="progressBar"></span></div>
-          <div class="progress-label"><span id="progressText">Total earned ฿0</span><span id="progressPct">0%</span></div>
+          <div class="progress" role="progressbar" aria-label="ความคืบหน้าสู่เป้าหมายร้าน" aria-valuemin="0" aria-valuemax="100"><span id="progressBar"></span></div>
+          <div class="progress-label"><span id="progressText">รายได้สะสม ฿0</span><span id="progressPct">0%</span></div>
         </div>
         <div class="upgrade-tools">
-          <div class="section-label" id="upgradeSectionTitle">🛠️ Upgrades & staff</div>
-          <div class="quantity" role="group" aria-label="Number of upgrades to buy">
+          <div class="section-label" id="upgradeSectionTitle">🛠️ อัปเกรดร้านและทีมงาน</div>
+          <div class="quantity" role="group" aria-label="จำนวนอัปเกรดที่จะซื้อ">
             <button type="button" data-quantity="1" aria-pressed="true">×1</button>
             <button type="button" data-quantity="10" aria-pressed="false">×10</button>
-            <button type="button" data-quantity="max" aria-pressed="false" id="quantityMax">Max</button>
+            <button type="button" data-quantity="max" aria-pressed="false" id="quantityMax">สูงสุด</button>
           </div>
         </div>
-        <div class="upgrade-list" id="upgradeList" aria-label="Upgrades"></div>
+        <div class="upgrade-list" id="upgradeList" aria-label="รายการอัปเกรด"></div>
       </aside>
     </section>
 
     <section class="card daily-card" aria-labelledby="dailyTitle">
-      <div class="daily-head"><div><h2 id="dailyTitle">🎯 Daily quests</h2><p id="dailyTip">Complete quests to earn bonus baht</p></div><div class="daily-stamp" id="dailyStamp">Resets daily</div></div>
+      <div class="daily-head"><div><h2 id="dailyTitle">🎯 ภารกิจประจำวัน</h2><p id="dailyTip">ทำภารกิจให้ครบเพื่อรับเงินโบนัส</p></div><div class="daily-stamp" id="dailyStamp">รีเซ็ตทุกวัน</div></div>
       <div class="quest-grid" id="questGrid"></div>
     </section>
 
-    <footer class="footer"><span id="footerSave">Free to play · Progress saved on this device</span><span id="footerCurrency">In-game currency has no real-world value · No real-money purchases</span></footer>
+    <footer class="footer"><span id="footerSave">เกมเล่นฟรี · บันทึกความคืบหน้าไว้ในอุปกรณ์นี้</span><span id="footerCurrency">เงินในเกมไม่มีมูลค่าจริง · ไม่มีการซื้อด้วยเงินจริง</span></footer>
   </main>
   <div class="float-layer" id="floatLayer" aria-hidden="true"></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -299,7 +299,7 @@
           soundOff:'ปิดเสียง', soundOn:'เปิดเสียง', soundToggleTitle:'เปิดหรือปิดเสียง', goalProgress:'ความคืบหน้าสู่เป้าหมายร้าน', scene:'ภาพร้านค้า'
         }
       };
-      window.shopGameLang = 'en';
+      window.shopGameLang = 'th';
       window.shopGameText = (key, values = {}) => {
         const template = (COPY[window.shopGameLang] && COPY[window.shopGameLang][key]) || COPY.en[key] || key;
         return template.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
@@ -364,8 +364,7 @@
           ]);
         } catch (_) { sdk = null; }
         window.__shopCrazySDK = sdk;
-        const locale = sdk?.user?.systemInfo?.locale || '';
-        window.setShopGameLanguage(String(locale).toLowerCase().startsWith('th') ? 'th' : 'en');
+        window.setShopGameLanguage('th');
         window.startGame();
       }, { once:true });
     })();
